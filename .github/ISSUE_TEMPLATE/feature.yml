@@ -1,0 +1,50 @@
+name: Feature
+description: Plan a product feature or improvement
+title: "[Feature]: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What are we building and why?
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Primary role
+      options:
+        - Admin
+        - Staff
+        - Customer
+        - All roles
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Concrete behavior that must be true before this is done.
+      placeholder: |
+        - The user can...
+        - The system prevents...
+        - The UI shows...
+    validations:
+      required: true
+  - type: textarea
+    id: uiux
+    attributes:
+      label: UI/UX requirements
+      description: Screens, states, responsive behavior, or design references.
+      placeholder: |
+        - Desktop:
+        - Mobile:
+        - Loading:
+        - Empty:
+        - Error:
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical notes
+      description: Feature slice, permissions, routes, API endpoints, mock data, or tests.

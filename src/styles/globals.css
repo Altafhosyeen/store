@@ -1,0 +1,110 @@
+/*
+ * Inter, self-hosted via @fontsource. Only the four weights the type scale
+ * actually uses are loaded — adding 800 here would cost a request for a face
+ * nothing renders.
+ */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Everything the design system can express as an Ant Design token lives in
+ * src/theme/antd-theme.ts, not here. What remains is only what a token cannot
+ * reach: the document element itself, and browser UI (scrollbars, selection).
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/*
+ * antd styles its own components but not the document. Colours and font here
+ * are the page canvas behind them, and match colorBgLayout / colorText /
+ * fontFamily in the theme.
+ */
+body {
+  margin: 0;
+  background: #faf9f7;
+  color: #1c1917;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #fef3c7;
+  color: #78350f;
+}
+
+/*
+ * Chrome paints autofilled inputs with its own pale blue and ignores
+ * background-color, which loses the theme on any credential the browser
+ * remembers. The inset shadow is the documented way to repaint the field, and
+ * no antd token reaches the -webkit-autofill pseudo-class.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1c1917;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  transition: background-color 100000s ease-in-out 0s;
+  caret-color: #1c1917;
+}
+
+/* Scrollbars: present but quiet. Firefox first, then WebKit. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #e7e5e4 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e7e5e4;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: content-box;
+}
+
+/* The dark sider scrolls against near-black, where the light thumb disappears. */
+.rn-sider ::-webkit-scrollbar-thumb {
+  background: #44403c;
+  background-clip: content-box;
+}
+
+/*
+ * The one sanctioned use of !important in the codebase: a motion-sensitivity
+ * preference has to beat antd's component-level transitions, which are more
+ * specific than anything we can write here. Do not copy this pattern elsewhere.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

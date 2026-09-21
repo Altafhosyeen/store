@@ -1,0 +1,7 @@
+# Biome formats with LF; without this, Windows checkouts reintroduce CRLF and
+# every formatted file shows up dirty.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
