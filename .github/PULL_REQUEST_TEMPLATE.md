@@ -9,7 +9,7 @@
 - Desktop checked:
 - Mobile checked:
 - Loading / empty / error states checked:
-- Roles affected (Admin / Staff / Customer):
+- Roles affected (Admin / Customer):
 
 ## Verification
 

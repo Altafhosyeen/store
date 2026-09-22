@@ -24,7 +24,7 @@ describe("access control", () => {
     expect(hasPermission(user, PERMISSIONS.PRODUCTS_DELETE)).toBe(false);
   });
 
-  it("separates two staff members by permission, not by role", () => {
+  it("separates two users by permission, not by role", () => {
     const manager = makeUser({ permissions: [PERMISSIONS.ORDERS_MANAGE] });
     const viewer = makeUser({ permissions: [PERMISSIONS.ORDERS_VIEW] });
 
@@ -38,12 +38,11 @@ describe("access control", () => {
 
     expect(canAccessConsole(customer)).toBe(false);
     expect(canAccessConsole(makeUser({ roleId: USER_ROLES.ADMIN }))).toBe(true);
-    expect(canAccessConsole(makeUser({ roleId: USER_ROLES.STAFF }))).toBe(true);
   });
 
   it("recognizes only the admin role as admin", () => {
     expect(isAdmin(makeUser({ roleId: USER_ROLES.ADMIN }))).toBe(true);
-    expect(isAdmin(makeUser({ roleId: USER_ROLES.STAFF }))).toBe(false);
+    expect(isAdmin(makeUser({ roleId: USER_ROLES.CUSTOMER }))).toBe(false);
     expect(isAdmin(null)).toBe(false);
   });
 
@@ -59,14 +58,6 @@ describe("role permissions", () => {
 
     expect(adminPermissions).toContain(PERMISSIONS.PRODUCTS_DELETE);
     expect(adminPermissions).toContain(PERMISSIONS.CUSTOMERS_MANAGE);
-  });
-
-  it("gives staff operational rights but not product deletion", () => {
-    const staffPermissions = getDefaultPermissions(USER_ROLES.STAFF);
-
-    expect(staffPermissions).toContain(PERMISSIONS.ORDERS_MANAGE);
-    expect(staffPermissions).toContain(PERMISSIONS.DASHBOARD_VIEW);
-    expect(staffPermissions).not.toContain(PERMISSIONS.PRODUCTS_DELETE);
   });
 
   it("grants customers no console permissions by default", () => {

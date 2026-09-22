@@ -1,4 +1,4 @@
-import { MOCK_ADMIN } from "@tests/mocks";
+import { MOCK_ADMIN, MOCK_PRODUCTS } from "@tests/mocks";
 import { describe, expect, it } from "vitest";
 import { API_ENDPOINTS } from "@/constants";
 import type { ProductDto } from "@/features/products";
@@ -32,7 +32,7 @@ describe("mock transport through the shared client", () => {
 
     // Not an ApiResponse wrapper: the client already stripped `Result`.
     expect(page.items).toHaveLength(5);
-    expect(page.total).toBe(37);
+    expect(page.total).toBe(MOCK_PRODUCTS.length);
   });
 
   it("signs in through the real client and returns tokens", async () => {

@@ -1,12 +1,28 @@
 /*
  * Inter, self-hosted via @fontsource. Only the four weights the type scale
  * actually uses are loaded — adding 800 here would cost a request for a face
- * nothing renders.
+ * nothing renders. Used by the Admin console.
  */
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
 @import "@fontsource/inter/700.css";
+
+/*
+ * Storefront brand type system: Playfair Display for headings/prices, Jost
+ * for body/UI text. Only the weights brandFontWeights actually uses.
+ */
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/500.css";
+@import "@fontsource/playfair-display/500-italic.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/playfair-display/800.css";
+@import "@fontsource/jost/300.css";
+@import "@fontsource/jost/400.css";
+@import "@fontsource/jost/500.css";
+@import "@fontsource/jost/600.css";
+@import "@fontsource/jost/700.css";
 
 @tailwind base;
 @tailwind components;

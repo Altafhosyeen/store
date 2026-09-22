@@ -11,7 +11,7 @@ export const makeUser = (overrides: Partial<SessionUser> = {}): SessionUser => (
   id: "u1",
   name: "Test User",
   email: "user@example.com",
-  roleId: USER_ROLES.STAFF,
+  roleId: USER_ROLES.CUSTOMER,
   permissions: [],
   ...overrides,
 });

@@ -5,7 +5,6 @@ import {
   MOCK_ORDER_PENDING,
   MOCK_PRODUCT_DRAFT,
   MOCK_PRODUCT_PUBLISHED,
-  MOCK_STAFF,
   MOCK_USERS,
   makeApiError,
   makeOrderList,
@@ -24,10 +23,10 @@ import { hasPermission } from "@/permissions";
  * that depends on it.
  */
 describe("mock users", () => {
-  it("gives staff order management rights and denies them to a customer", () => {
-    expect(hasPermission(MOCK_STAFF, PERMISSIONS.ORDERS_MANAGE)).toBe(true);
+  it("gives admin order management rights and denies them to a customer", () => {
+    expect(hasPermission(MOCK_ADMIN, PERMISSIONS.ORDERS_MANAGE)).toBe(true);
     expect(hasPermission(MOCK_CUSTOMER, PERMISSIONS.ORDERS_MANAGE)).toBe(false);
-    expect(MOCK_STAFF.roleId).toBe(USER_ROLES.STAFF);
+    expect(MOCK_ADMIN.roleId).toBe(USER_ROLES.ADMIN);
   });
 
   it("grants the admin every permission the app defines", () => {
@@ -83,10 +82,16 @@ describe("mock orders", () => {
     expect(MOCK_ORDER_PENDING.customerName).toBe(MOCK_CUSTOMER.name);
   });
 
-  it("derives the order timestamp from now, so fixtures do not rot", () => {
-    const createdAt = new Date(MOCK_ORDER_PENDING.createdAt).getTime();
+  it("derives order timestamps from now, so fixtures do not rot into hardcoded dates", () => {
+    // Orders are spread across the recent past (most recent first), not
+    // pinned to a literal date, so this stays true no matter when it runs.
+    for (const order of makeOrderList(5)) {
+      const createdAt = new Date(order.createdAt).getTime();
+      const ageMs = Date.now() - createdAt;
 
-    expect(Date.now() - createdAt).toBeLessThan(60_000);
+      expect(ageMs).toBeGreaterThanOrEqual(0);
+      expect(ageMs).toBeLessThan(30 * 86_400_000);
+    }
   });
 
   it("totals each line's price times quantity", () => {

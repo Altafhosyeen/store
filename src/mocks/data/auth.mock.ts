@@ -22,14 +22,12 @@ const makeSessionUser = (
 });
 
 export const MOCK_ADMIN = makeSessionUser("u-admin", "Ada", USER_ROLES.ADMIN);
-export const MOCK_STAFF = makeSessionUser("u-staff", "Sam Staff", USER_ROLES.STAFF);
 export const MOCK_CUSTOMER = makeSessionUser("u-customer", "Cara", USER_ROLES.CUSTOMER);
 
-export const MOCK_USERS = [MOCK_ADMIN, MOCK_STAFF, MOCK_CUSTOMER];
+export const MOCK_USERS = [MOCK_ADMIN, MOCK_CUSTOMER];
 
 export const MOCK_USERS_BY_ROLE: Record<UserRoleId, SessionUser> = {
   [USER_ROLES.ADMIN]: MOCK_ADMIN,
-  [USER_ROLES.STAFF]: MOCK_STAFF,
   [USER_ROLES.CUSTOMER]: MOCK_CUSTOMER,
 };
 

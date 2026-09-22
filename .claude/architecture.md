@@ -90,14 +90,14 @@ Inside `src/components/`:
 ## Routing
 
 - `/login`, `/register`, `/forgot-password` → `PublicRoute` + `AuthLayout`
-- `/app/*` → `ProtectedRoute` + `AdminLayout` (Admin + Staff console)
+- `/app/*` → `ProtectedRoute` + `AdminLayout` (Admin console)
 - `/shop`, `/shop/categories`, `/cart`, `/checkout` → `StorefrontLayout`, public
   (no auth guard — guests can browse and add to cart)
 - `/account/*` → `StorefrontLayout` + `ProtectedRoute` (signed-in customers only)
 
 Guards: `ProtectedRoute` (authenticated), `PermissionRoute` (capability),
-`RoleRoute` (whole-experience split only — reserved for a future customer-only
-or staff-only shell split beyond the current console/storefront divide).
+`RoleRoute` (whole-experience split only — reserved for a future shell split
+beyond the current console/storefront divide).
 
 ## Authorization
 

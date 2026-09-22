@@ -89,7 +89,7 @@ undo the exposure — the value stays in the git history and in any clone.
 
 ## Roles
 
-Admin, Staff, Customer. Admin and Staff run the admin console (catalog,
+Admin, Customer. Admin runs the admin console (catalog,
 orders, customers); Customers use the public storefront. UI access is
 permission-driven — see `src/constants/permissions.constants.ts`.
 

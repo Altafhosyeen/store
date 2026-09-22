@@ -1,11 +1,13 @@
+import { USER_ROLES } from "@/constants";
 import { ACCOUNT_ENDPOINTS } from "@/features/account/constants/account.constants";
 import type { OrderDto } from "@/features/orders";
 import type { PaginatedResult, SessionUser } from "@/types";
-import { makeOrderList, makePaginatedResult } from "../data";
+import { MOCK_CUSTOMER, MOCK_ORDERS, makePaginatedResult } from "../data";
 import { defineHandlers } from "../mock-router";
 import { setMockUser } from "./auth.handler";
 
-const myOrders: OrderDto[] = makeOrderList(3);
+/** The signed-in mock customer's own past orders, pulled from the shared order list. */
+const myOrders: OrderDto[] = MOCK_ORDERS.filter((order) => order.customerId === MOCK_CUSTOMER.id);
 
 export const accountHandlers = defineHandlers([
   {
@@ -22,7 +24,7 @@ export const accountHandlers = defineHandlers([
         id: "u-customer",
         name,
         email: "cara@example.com",
-        roleId: 3,
+        roleId: USER_ROLES.CUSTOMER,
         permissions: [],
       };
       setMockUser(updated);

@@ -27,9 +27,9 @@ Read [.claude/README.md](.claude/README.md) before writing code.
 
 ## Roles
 
-`ADMIN: 1`, `STAFF: 2`, `CUSTOMER: 3` — see `src/constants/roles.constants.ts`.
+`ADMIN: 1`, `CUSTOMER: 2` — see `src/constants/roles.constants.ts`.
 
-Admin and Staff run the store from the admin console (products, categories,
+Admin runs the store from the admin console (products, categories,
 orders, customers). Customers browse and buy from the public storefront. Use
 **permissions** for feature access; reserve role checks for whole-experience
 splits (console vs. storefront shell).
@@ -101,7 +101,7 @@ real provider (Stripe, SSLCommerz, bKash, ...) into
 `VITE_ENABLE_MOCK=true` in `.env.local` runs the app on mock data with no
 backend, installed as an axios adapter in `src/mocks/` so every layer above the
 transport behaves normally. Any password works; the email picks the role
-(`ada@example.com` → Admin, `sam staff@example.com` → Staff, `cara@example.com`
+(`ada@example.com` → Admin, `cara@example.com`
 → Customer — see `src/mocks/data/auth.mock.ts`). Production builds exclude the
 mock code entirely.
 See [.claude/architecture.md](.claude/architecture.md#mock-mode).

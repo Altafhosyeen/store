@@ -16,7 +16,6 @@ body:
       label: Affected role
       options:
         - Admin
-        - Staff
         - Customer
         - All roles
         - Unauthenticated

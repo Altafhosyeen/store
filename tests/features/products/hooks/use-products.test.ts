@@ -1,3 +1,4 @@
+import { MOCK_PRODUCTS } from "@tests/mocks";
 import { renderHookWithProviders, waitFor } from "@tests/support";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { useGetProducts } from "@/features/products";
@@ -26,7 +27,7 @@ describe("useGetProducts", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data?.items).toHaveLength(5);
-    expect(result.current.data?.total).toBe(37);
+    expect(result.current.data?.total).toBe(MOCK_PRODUCTS.length);
   });
 
   it("filters by status", async () => {

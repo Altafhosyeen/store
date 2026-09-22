@@ -26,7 +26,7 @@ export const routes: RouteObject[] = [
     children: [{ element: <AuthLayout />, children: authRoutes }],
   },
 
-  // Admin + Staff console.
+  // Admin console.
   {
     element: <ProtectedRoute />,
     children: [

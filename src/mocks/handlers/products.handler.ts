@@ -1,10 +1,10 @@
 import type { ProductDto, ProductListParams, ProductPayload } from "@/features/products";
 import { PRODUCTS_ENDPOINTS } from "@/features/products";
 import type { PaginatedResult } from "@/types";
-import { MOCK_CATEGORIES, makePaginatedResult, makeProductList } from "../data";
+import { MOCK_CATEGORIES, MOCK_PRODUCTS, makePaginatedResult } from "../data";
 import { badRequest, defineHandlers, notFound } from "../mock-router";
 
-let products: ProductDto[] = makeProductList(37);
+let products: ProductDto[] = [...MOCK_PRODUCTS];
 
 const toDto = (id: string, payload: ProductPayload): ProductDto => {
   const category = MOCK_CATEGORIES.find((c) => c.id === payload.categoryId);

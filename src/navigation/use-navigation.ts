@@ -8,7 +8,6 @@ import { filterNavigation } from "./navigation.utils";
 
 const NAVIGATION_BY_ROLE: Record<number, NavigationItem[]> = {
   [USER_ROLES.ADMIN]: ADMIN_NAVIGATION,
-  [USER_ROLES.STAFF]: ADMIN_NAVIGATION,
 };
 
 /** Role picks the menu; permissions decide which of its items survive. */

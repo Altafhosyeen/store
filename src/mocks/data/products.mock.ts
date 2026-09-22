@@ -42,22 +42,553 @@ export const makeProduct = (overrides: Partial<ProductDto> = {}): ProductDto => 
   };
 };
 
-export const makeProductList = (count: number): ProductDto[] =>
-  Array.from({ length: count }, (_, index) => {
-    const category = MOCK_CATEGORIES[index % MOCK_CATEGORIES.length];
-    return makeProduct({
-      id: `prod-${index + 1}`,
-      name: `${category.name.slice(0, -1)} Snack Pack ${index + 1}`,
-      slug: `product-${index + 1}`,
-      categoryId: category.id,
-      categoryName: category.name,
-      status: index % 5 === 0 ? PRODUCT_STATUS.DRAFT : PRODUCT_STATUS.PUBLISHED,
-    });
-  });
+const findCategory = (slug: string) => {
+  const category = MOCK_CATEGORIES.find((c) => c.slug === slug);
+  if (!category) throw new Error(`Unknown mock category slug: ${slug}`);
+  return category;
+};
 
-export const MOCK_PRODUCT_PUBLISHED = makeProduct();
-export const MOCK_PRODUCT_DRAFT = makeProduct({
-  id: "prod-draft",
-  name: "Unroasted Pistachios",
-  status: PRODUCT_STATUS.DRAFT,
+/** Builds the two-variant (250g/500g) price ladder most SKUs in this catalog use. */
+const twoSizeVariants = (
+  idPrefix: string,
+  smallPrice: number,
+  largePrice: number,
+  options: { smallStock?: number; largeStock?: number; compareAtLarge?: number } = {},
+): ProductVariantDto[] => [
+  makeVariant({
+    id: `${idPrefix}-250g`,
+    label: "250g",
+    size: 250,
+    price: smallPrice,
+    stockQuantity: options.smallStock ?? 40,
+  }),
+  makeVariant({
+    id: `${idPrefix}-500g`,
+    label: "500g",
+    size: 500,
+    price: largePrice,
+    compareAtPrice: options.compareAtLarge,
+    stockQuantity: options.largeStock ?? 25,
+  }),
+];
+
+interface CatalogEntry {
+  name: string;
+  categorySlug: string;
+  description: string;
+  image: string;
+  smallPrice: number;
+  largePrice: number;
+  compareAtLarge?: number;
+  tags: string[];
+  status?: (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
+  stockOverride?: { small?: number; large?: number };
+}
+
+const CATALOG: CatalogEntry[] = [
+  // Cashews
+  {
+    name: "Roasted Cashews",
+    categorySlug: "cashews",
+    description: "Premium roasted cashews, lightly salted for a satisfying crunch.",
+    image: "https://images.unsplash.com/photo-1600189261867-30e5ffe7b8da?w=600",
+    smallPrice: 6.99,
+    largePrice: 12.49,
+    compareAtLarge: 14.99,
+    tags: ["roasted", "salted"],
+  },
+  {
+    name: "Raw Whole Cashews",
+    categorySlug: "cashews",
+    description: "Unroasted, unsalted whole cashews — ideal for baking and blending.",
+    image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
+    smallPrice: 7.49,
+    largePrice: 13.99,
+    tags: ["raw", "unsalted"],
+  },
+  {
+    name: "Honey Roasted Cashews",
+    categorySlug: "cashews",
+    description: "Roasted cashews glazed in a thin layer of real honey.",
+    image: "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?w=600",
+    smallPrice: 7.99,
+    largePrice: 14.49,
+    tags: ["honey", "glazed"],
+  },
+  {
+    name: "Chilli Lime Cashews",
+    categorySlug: "cashews",
+    description: "Roasted cashews dusted with chilli powder and tangy lime zest.",
+    image: "https://images.unsplash.com/photo-1615485291234-7d67e2ba3b0f?w=600",
+    smallPrice: 7.49,
+    largePrice: 13.99,
+    tags: ["spicy", "flavoured"],
+  },
+  {
+    name: "Broken Cashew Pieces",
+    categorySlug: "cashews",
+    description: "Budget-friendly broken cashew pieces, great for cooking.",
+    image: "https://images.unsplash.com/photo-1590502593389-b91d6f2bce9d?w=600",
+    smallPrice: 4.99,
+    largePrice: 8.99,
+    tags: ["value", "cooking"],
+  },
+  {
+    name: "Cashew Butter",
+    categorySlug: "cashews",
+    description: "Smooth, creamy cashew butter ground from roasted cashews.",
+    image: "https://images.unsplash.com/photo-1584278860047-22db9ff82bed?w=600",
+    smallPrice: 8.99,
+    largePrice: 15.99,
+    tags: ["spread", "smooth"],
+  },
+  {
+    name: "Salt & Vinegar Cashews",
+    categorySlug: "cashews",
+    description: "Tangy salt and vinegar seasoning over crunchy roasted cashews.",
+    image: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=600",
+    smallPrice: 7.49,
+    largePrice: 13.99,
+    tags: ["tangy", "flavoured"],
+    status: PRODUCT_STATUS.DRAFT,
+  },
+  {
+    name: "Organic Cashews",
+    categorySlug: "cashews",
+    description: "Certified organic cashews, raw and unprocessed.",
+    image: "https://images.unsplash.com/photo-1567892737950-30c4db37cd89?w=600",
+    smallPrice: 8.49,
+    largePrice: 15.49,
+    tags: ["organic", "raw"],
+  },
+
+  // Almonds
+  {
+    name: "Roasted Salted Almonds",
+    categorySlug: "almonds",
+    description: "Whole almonds, dry-roasted and lightly salted.",
+    image: "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=600",
+    smallPrice: 5.99,
+    largePrice: 10.99,
+    compareAtLarge: 12.99,
+    tags: ["roasted", "salted"],
+  },
+  {
+    name: "Raw Almonds",
+    categorySlug: "almonds",
+    description: "Natural raw almonds with skin on.",
+    image: "https://images.unsplash.com/photo-1615671524827-c1fe3973b648?w=600",
+    smallPrice: 6.49,
+    largePrice: 11.99,
+    tags: ["raw", "natural"],
+  },
+  {
+    name: "Blanched Sliced Almonds",
+    categorySlug: "almonds",
+    description: "Thinly sliced blanched almonds, perfect for baking and salads.",
+    image: "https://images.unsplash.com/photo-1622484212385-fac0eb0da1a8?w=600",
+    smallPrice: 6.99,
+    largePrice: 12.49,
+    tags: ["sliced", "baking"],
+  },
+  {
+    name: "Smoked Almonds",
+    categorySlug: "almonds",
+    description: "Hickory-smoked almonds with a deep, savoury flavour.",
+    image: "https://images.unsplash.com/photo-1622484211838-6a4e1f2f2c30?w=600",
+    smallPrice: 6.99,
+    largePrice: 12.99,
+    tags: ["smoked", "savoury"],
+  },
+  {
+    name: "Wasabi Almonds",
+    categorySlug: "almonds",
+    description: "Roasted almonds coated in a bold wasabi seasoning.",
+    image: "https://images.unsplash.com/photo-1615485291234-7d67e2ba3b0f?w=600",
+    smallPrice: 7.49,
+    largePrice: 13.49,
+    tags: ["spicy", "flavoured"],
+  },
+  {
+    name: "Almond Butter",
+    categorySlug: "almonds",
+    description: "Stone-ground almond butter, no added sugar or oil.",
+    image: "https://images.unsplash.com/photo-1626200926749-1b8ee2f8a0f5?w=600",
+    smallPrice: 9.49,
+    largePrice: 16.99,
+    tags: ["spread", "smooth"],
+  },
+  {
+    name: "Marcona Almonds",
+    categorySlug: "almonds",
+    description: "Spanish Marcona almonds, fried in olive oil and sea salt.",
+    image: "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=600",
+    smallPrice: 9.99,
+    largePrice: 17.99,
+    tags: ["premium", "spanish"],
+  },
+
+  // Walnuts
+  {
+    name: "Walnut Halves",
+    categorySlug: "walnuts",
+    description: "Fresh-cracked walnut halves, mild and buttery.",
+    image: "https://images.unsplash.com/photo-1573851552153-816785fecf4a?w=600",
+    smallPrice: 7.99,
+    largePrice: 14.49,
+    tags: ["fresh", "halves"],
+  },
+  {
+    name: "Walnut Pieces",
+    categorySlug: "walnuts",
+    description: "Chopped walnut pieces, great for baking and topping.",
+    image: "https://images.unsplash.com/photo-1607923432780-77c4bbb37b26?w=600",
+    smallPrice: 6.49,
+    largePrice: 11.49,
+    tags: ["chopped", "baking"],
+  },
+  {
+    name: "Candied Walnuts",
+    categorySlug: "walnuts",
+    description: "Walnuts coated in a crisp cinnamon-sugar candy shell.",
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
+    smallPrice: 8.49,
+    largePrice: 15.49,
+    tags: ["candied", "sweet"],
+  },
+  {
+    name: "Organic Walnuts",
+    categorySlug: "walnuts",
+    description: "Certified organic walnut halves and pieces.",
+    image: "https://images.unsplash.com/photo-1573851552153-816785fecf4a?w=600",
+    smallPrice: 9.49,
+    largePrice: 16.99,
+    tags: ["organic"],
+    status: PRODUCT_STATUS.DRAFT,
+  },
+  {
+    name: "Black Walnuts",
+    categorySlug: "walnuts",
+    description: "Bold, earthy black walnuts — a stronger cousin of the English walnut.",
+    image: "https://images.unsplash.com/photo-1607923432780-77c4bbb37b26?w=600",
+    smallPrice: 10.99,
+    largePrice: 19.99,
+    tags: ["specialty"],
+  },
+
+  // Pistachios
+  {
+    name: "Roasted Salted Pistachios (In-Shell)",
+    categorySlug: "pistachios",
+    description: "Classic in-shell pistachios, roasted and salted.",
+    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=600",
+    smallPrice: 8.99,
+    largePrice: 15.99,
+    compareAtLarge: 17.99,
+    tags: ["in-shell", "roasted"],
+  },
+  {
+    name: "Shelled Pistachios",
+    categorySlug: "pistachios",
+    description: "Ready-to-eat shelled pistachio kernels.",
+    image: "https://images.unsplash.com/photo-1571506165871-ee72a35bc9d4?w=600",
+    smallPrice: 10.99,
+    largePrice: 19.99,
+    tags: ["shelled", "convenient"],
+  },
+  {
+    name: "Spicy Pistachios",
+    categorySlug: "pistachios",
+    description: "In-shell pistachios with a fiery chilli seasoning.",
+    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=600",
+    smallPrice: 9.49,
+    largePrice: 16.99,
+    tags: ["spicy", "in-shell"],
+  },
+  {
+    name: "Pistachio Kernels (Raw)",
+    categorySlug: "pistachios",
+    description: "Raw, unsalted shelled pistachio kernels — ideal for cooking.",
+    image: "https://images.unsplash.com/photo-1571506165871-ee72a35bc9d4?w=600",
+    smallPrice: 11.49,
+    largePrice: 20.99,
+    tags: ["raw", "cooking"],
+  },
+  {
+    name: "Sicilian Pistachios",
+    categorySlug: "pistachios",
+    description: "Premium Sicilian pistachios, deep green and intensely flavoured.",
+    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=600",
+    smallPrice: 14.99,
+    largePrice: 26.99,
+    tags: ["premium", "sicilian"],
+  },
+  {
+    name: "Pistachio Butter",
+    categorySlug: "pistachios",
+    description: "Rich, vibrant green pistachio butter.",
+    image: "https://images.unsplash.com/photo-1626200926749-1b8ee2f8a0f5?w=600",
+    smallPrice: 12.99,
+    largePrice: 22.99,
+    tags: ["spread"],
+  },
+
+  // Dried Fruit
+  {
+    name: "Medjool Dates",
+    categorySlug: "dried-fruit",
+    description: "Soft, caramel-sweet Medjool dates, pitted.",
+    image: "https://images.unsplash.com/photo-1593904308074-e1a0e9c0c8a8?w=600",
+    smallPrice: 8.49,
+    largePrice: 15.49,
+    tags: ["dates", "sweet"],
+  },
+  {
+    name: "Dried Apricots",
+    categorySlug: "dried-fruit",
+    description: "Naturally dried Turkish apricots, no added sugar.",
+    image: "https://images.unsplash.com/photo-1596591868231-05e808fd126f?w=600",
+    smallPrice: 6.99,
+    largePrice: 12.49,
+    tags: ["apricot", "no-sugar"],
+  },
+  {
+    name: "Dried Mango Slices",
+    categorySlug: "dried-fruit",
+    description: "Sweet, chewy dried mango slices.",
+    image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600",
+    smallPrice: 7.49,
+    largePrice: 13.49,
+    tags: ["mango", "tropical"],
+  },
+  {
+    name: "Golden Raisins",
+    categorySlug: "dried-fruit",
+    description: "Plump, sun-dried golden raisins.",
+    image: "https://images.unsplash.com/photo-1596591868231-05e808fd126f?w=600",
+    smallPrice: 4.99,
+    largePrice: 8.99,
+    tags: ["raisins"],
+  },
+  {
+    name: "Dried Figs",
+    categorySlug: "dried-fruit",
+    description: "Whole dried Turkish figs, naturally sweet.",
+    image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600",
+    smallPrice: 8.99,
+    largePrice: 16.49,
+    tags: ["figs"],
+  },
+  {
+    name: "Dried Cranberries",
+    categorySlug: "dried-fruit",
+    description: "Tart-sweet dried cranberries, lightly sweetened.",
+    image: "https://images.unsplash.com/photo-1596591868231-05e808fd126f?w=600",
+    smallPrice: 5.99,
+    largePrice: 10.99,
+    tags: ["cranberry", "tart"],
+  },
+  {
+    name: "Dried Pineapple Rings",
+    categorySlug: "dried-fruit",
+    description: "Chewy dried pineapple rings with a tropical tang.",
+    image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600",
+    smallPrice: 7.99,
+    largePrice: 14.49,
+    tags: ["pineapple", "tropical"],
+    status: PRODUCT_STATUS.DRAFT,
+  },
+  {
+    name: "Dried Banana Chips",
+    categorySlug: "dried-fruit",
+    description: "Crispy fried banana chips, lightly sweetened.",
+    image: "https://images.unsplash.com/photo-1596591868231-05e808fd126f?w=600",
+    smallPrice: 5.49,
+    largePrice: 9.99,
+    tags: ["banana", "crispy"],
+  },
+
+  // Trail Mixes
+  {
+    name: "Classic Trail Mix",
+    categorySlug: "trail-mixes",
+    description: "Almonds, cashews, raisins and cranberries in one energizing mix.",
+    image: "https://images.unsplash.com/photo-1594054621968-0dab77f8b3f7?w=600",
+    smallPrice: 6.99,
+    largePrice: 12.49,
+    tags: ["mix", "energy"],
+  },
+  {
+    name: "Tropical Trail Mix",
+    categorySlug: "trail-mixes",
+    description: "Cashews, dried mango, pineapple and coconut chips.",
+    image: "https://images.unsplash.com/photo-1594054621968-0dab77f8b3f7?w=600",
+    smallPrice: 7.49,
+    largePrice: 13.49,
+    tags: ["mix", "tropical"],
+  },
+  {
+    name: "Protein Power Mix",
+    categorySlug: "trail-mixes",
+    description: "Almonds, pumpkin seeds, walnuts and dark chocolate chips.",
+    image: "https://images.unsplash.com/photo-1594054621968-0dab77f8b3f7?w=600",
+    smallPrice: 8.49,
+    largePrice: 15.49,
+    tags: ["mix", "protein"],
+  },
+  {
+    name: "Spicy Trail Mix",
+    categorySlug: "trail-mixes",
+    description: "Chilli-lime cashews, wasabi peas and roasted peanuts.",
+    image: "https://images.unsplash.com/photo-1594054621968-0dab77f8b3f7?w=600",
+    smallPrice: 7.49,
+    largePrice: 13.49,
+    tags: ["mix", "spicy"],
+  },
+  {
+    name: "Dark Chocolate Trail Mix",
+    categorySlug: "trail-mixes",
+    description: "Almonds, cashews and dark chocolate morsels.",
+    image: "https://images.unsplash.com/photo-1594054621968-0dab77f8b3f7?w=600",
+    smallPrice: 8.99,
+    largePrice: 16.49,
+    tags: ["mix", "chocolate"],
+  },
+  {
+    name: "Keto Trail Mix",
+    categorySlug: "trail-mixes",
+    description: "Low-carb mix of macadamias, pecans and unsweetened coconut.",
+    image: "https://images.unsplash.com/photo-1594054621968-0dab77f8b3f7?w=600",
+    smallPrice: 9.99,
+    largePrice: 18.49,
+    tags: ["mix", "keto"],
+  },
+
+  // Seeds
+  {
+    name: "Roasted Pumpkin Seeds",
+    categorySlug: "seeds",
+    description: "Shelled pumpkin seeds, dry-roasted and lightly salted.",
+    image: "https://images.unsplash.com/photo-1508061235736-cdfa2f4c9ce0?w=600",
+    smallPrice: 5.49,
+    largePrice: 9.99,
+    tags: ["pumpkin", "roasted"],
+  },
+  {
+    name: "Sunflower Seeds",
+    categorySlug: "seeds",
+    description: "Shelled sunflower seeds, lightly salted.",
+    image: "https://images.unsplash.com/photo-1508061235736-cdfa2f4c9ce0?w=600",
+    smallPrice: 4.49,
+    largePrice: 7.99,
+    tags: ["sunflower"],
+  },
+  {
+    name: "Chia Seeds",
+    categorySlug: "seeds",
+    description: "Nutrient-dense raw chia seeds.",
+    image: "https://images.unsplash.com/photo-1508061235736-cdfa2f4c9ce0?w=600",
+    smallPrice: 6.99,
+    largePrice: 12.99,
+    tags: ["chia", "superfood"],
+  },
+  {
+    name: "Flax Seeds",
+    categorySlug: "seeds",
+    description: "Whole golden flax seeds, high in omega-3.",
+    image: "https://images.unsplash.com/photo-1508061235736-cdfa2f4c9ce0?w=600",
+    smallPrice: 5.99,
+    largePrice: 10.99,
+    tags: ["flax"],
+  },
+  {
+    name: "Hemp Hearts",
+    categorySlug: "seeds",
+    description: "Shelled hemp seeds, mild nutty flavour, high protein.",
+    image: "https://images.unsplash.com/photo-1508061235736-cdfa2f4c9ce0?w=600",
+    smallPrice: 8.99,
+    largePrice: 16.49,
+    tags: ["hemp", "protein"],
+  },
+
+  // Gift Boxes
+  {
+    name: "Deluxe Nut Assortment Box",
+    categorySlug: "gift-boxes",
+    description: "A curated box of cashews, almonds, pistachios and walnuts.",
+    image: "https://images.unsplash.com/photo-1607920591413-4ec007e70023?w=600",
+    smallPrice: 24.99,
+    largePrice: 39.99,
+    tags: ["gift", "assortment"],
+  },
+  {
+    name: "Dried Fruit & Nut Hamper",
+    categorySlug: "gift-boxes",
+    description: "A festive hamper of dried fruit and roasted nuts.",
+    image: "https://images.unsplash.com/photo-1607920591413-4ec007e70023?w=600",
+    smallPrice: 22.99,
+    largePrice: 36.99,
+    tags: ["gift", "hamper"],
+  },
+  {
+    name: "Chocolate Lovers Gift Box",
+    categorySlug: "gift-boxes",
+    description: "Chocolate-covered almonds, cashews and cranberries.",
+    image: "https://images.unsplash.com/photo-1607920591413-4ec007e70023?w=600",
+    smallPrice: 26.99,
+    largePrice: 44.99,
+    tags: ["gift", "chocolate"],
+  },
+  {
+    name: "Corporate Gift Tin",
+    categorySlug: "gift-boxes",
+    description: "An elegant tin of mixed nuts, perfect for corporate gifting.",
+    image: "https://images.unsplash.com/photo-1607920591413-4ec007e70023?w=600",
+    smallPrice: 29.99,
+    largePrice: 49.99,
+    tags: ["gift", "corporate"],
+    status: PRODUCT_STATUS.DRAFT,
+  },
+];
+
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+export const MOCK_PRODUCTS: ProductDto[] = CATALOG.map((entry, index) => {
+  const category = findCategory(entry.categorySlug);
+  const id = `prod-${index + 1}`;
+  const createdAt = new Date(Date.now() - (CATALOG.length - index) * 86_400_000).toISOString();
+
+  return makeProduct({
+    id,
+    name: entry.name,
+    slug: slugify(entry.name),
+    description: entry.description,
+    categoryId: category.id,
+    categoryName: category.name,
+    status: entry.status ?? PRODUCT_STATUS.PUBLISHED,
+    images: [entry.image],
+    variants: twoSizeVariants(id, entry.smallPrice, entry.largePrice, {
+      compareAtLarge: entry.compareAtLarge,
+      smallStock: entry.stockOverride?.small,
+      largeStock: entry.stockOverride?.large ?? (index % 11 === 0 ? 0 : undefined),
+    }),
+    tags: entry.tags,
+    createdAt,
+    updatedAt: createdAt,
+  });
 });
+
+/** Backwards-compatible generator, now backed by the real named catalog above. */
+export const makeProductList = (count: number): ProductDto[] =>
+  Array.from({ length: count }, (_, index) => MOCK_PRODUCTS[index % MOCK_PRODUCTS.length]).map(
+    (product, index) => ({ ...product, id: `prod-${index + 1}` }),
+  );
+
+export const MOCK_PRODUCT_PUBLISHED = MOCK_PRODUCTS[0];
+export const MOCK_PRODUCT_DRAFT =
+  MOCK_PRODUCTS.find((p) => p.status === PRODUCT_STATUS.DRAFT) ??
+  makeProduct({ id: "prod-draft", name: "Unroasted Pistachios", status: PRODUCT_STATUS.DRAFT });

@@ -16,7 +16,6 @@ body:
       label: Primary role
       options:
         - Admin
-        - Staff
         - Customer
         - All roles
     validations:
