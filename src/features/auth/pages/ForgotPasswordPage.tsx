@@ -35,8 +35,9 @@ export const ForgotPasswordPage = () => {
         </Button>
       </Form>
 
-      <div className="mt-4 text-sm">
+      <div className="mt-4 flex items-center justify-between text-sm">
         <Link to={ROUTES.LOGIN}>Back to sign in</Link>
+        <Link to={ROUTES.REGISTER}>Create an account</Link>
       </div>
     </>
   );

@@ -9,6 +9,9 @@ const CategoriesAdminPage = lazy(() =>
 const CategoriesPage = lazy(() =>
   import("./pages/CategoriesPage").then((m) => ({ default: m.CategoriesPage })),
 );
+const CategoryProductsPage = lazy(() =>
+  import("./pages/CategoryProductsPage").then((m) => ({ default: m.CategoryProductsPage })),
+);
 
 export const categoriesRoutes: RouteObject[] = [
   {
@@ -21,5 +24,5 @@ export const categoriesRoutes: RouteObject[] = [
 /** Mounted under the public StorefrontLayout. */
 export const storefrontCategoriesRoutes: RouteObject[] = [
   { index: true, element: <CategoriesPage /> },
-  { path: param(SEGMENTS.CATEGORY_SLUG), element: <CategoriesPage /> },
+  { path: param(SEGMENTS.CATEGORY_SLUG), element: <CategoryProductsPage /> },
 ];

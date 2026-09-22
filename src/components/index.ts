@@ -5,4 +5,6 @@ export { StatusTag } from "./common/StatusTag";
 export { BodyLarge, BodySmall, Caption } from "./common/Text";
 export { EmptyState } from "./feedback/EmptyState";
 export { QueryStateBoundary } from "./feedback/QueryStateBoundary";
+export { ProductImage } from "./storefront/ProductImage";
 export { ProductPrice } from "./storefront/ProductPrice";
+export { SectionHeading } from "./storefront/SectionHeading";

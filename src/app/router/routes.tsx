@@ -11,7 +11,7 @@ import { checkoutRoutes } from "@/features/checkout";
 import { customersRoutes } from "@/features/customers";
 import { dashboardRoutes } from "@/features/dashboard";
 import { ordersRoutes } from "@/features/orders";
-import { productsRoutes, shopRoutes } from "@/features/products";
+import { homeRoutes, productsRoutes, shopRoutes } from "@/features/products";
 import { NotFoundRoute } from "./NotFoundRoute";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
@@ -49,6 +49,7 @@ export const routes: RouteObject[] = [
   {
     element: <StorefrontLayout />,
     children: [
+      { path: ROUTES.ROOT, children: homeRoutes },
       { path: ROUTES.SHOP, children: shopRoutes },
       { path: ROUTES.CATEGORIES, children: storefrontCategoriesRoutes },
       { path: ROUTES.CART, children: cartRoutes },
@@ -62,6 +63,5 @@ export const routes: RouteObject[] = [
   },
 
   { path: ROUTES.UNAUTHORIZED, element: <UnauthorizedRoute /> },
-  { path: ROUTES.ROOT, element: <Navigate to={ROUTES.SHOP} replace /> },
   { path: "*", element: <NotFoundRoute /> },
 ];

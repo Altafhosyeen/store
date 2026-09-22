@@ -15,6 +15,9 @@ const ProductDetailPage = lazy(() =>
 const ShopPage = lazy(() =>
   import("./pages/ShopPage").then((module) => ({ default: module.ShopPage })),
 );
+const HomePage = lazy(() =>
+  import("./pages/HomePage").then((module) => ({ default: module.HomePage })),
+);
 const StorefrontProductDetailPage = lazy(() =>
   import("./pages/StorefrontProductDetailPage").then((module) => ({
     default: module.StorefrontProductDetailPage,
@@ -43,3 +46,6 @@ export const shopRoutes: RouteObject[] = [
   { index: true, element: <ShopPage /> },
   { path: param(SEGMENTS.PRODUCT_ID), element: <StorefrontProductDetailPage /> },
 ];
+
+/** Mounted at the storefront root by the root router. */
+export const homeRoutes: RouteObject[] = [{ index: true, element: <HomePage /> }];

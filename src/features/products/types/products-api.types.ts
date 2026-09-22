@@ -30,6 +30,16 @@ export interface ProductDto {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  /**
+   * Storefront merchandising signals. No backend review system exists yet, so
+   * these are optional and only mock mode populates them today — the UI must
+   * degrade gracefully (no stars, no badge) when they're undefined.
+   */
+  rating?: number;
+  reviewCount?: number;
+  isBestSeller?: boolean;
+  isFeatured?: boolean;
+  isNew?: boolean;
 }
 
 export interface ProductListParams extends PaginationParams {
