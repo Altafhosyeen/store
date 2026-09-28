@@ -5,7 +5,7 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import { PageHeader, StatCard } from "@/components";
-import { CURRENCY } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import { useGetDashboardSummary } from "../hooks/use-dashboard";
 
 export const DashboardPage = () => {
@@ -18,7 +18,7 @@ export const DashboardPage = () => {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Revenue"
-          value={data ? `${CURRENCY.SYMBOL}${data.totalRevenue.toFixed(2)}` : 0}
+          value={data ? formatCurrency(data.totalRevenue) : 0}
           icon={<DollarOutlined />}
           tone="primary"
           isLoading={isLoading}

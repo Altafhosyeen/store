@@ -13,14 +13,22 @@ export type TableParams = PaginationParams & Record<string, unknown>;
 export const useTableParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const params = useMemo<TableParams>(
-    () => ({
+  const params = useMemo<TableParams>(() => {
+    // page/pageSize are always numbers and search always a string; every other
+    // key (categoryId, status, sort, ...) is feature-specific and round-trips
+    // as the raw string it was written as — callers read/coerce it themselves.
+    const extras: Record<string, string> = {};
+    for (const [key, value] of searchParams.entries()) {
+      if (key === "page" || key === "pageSize" || key === "search") continue;
+      extras[key] = value;
+    }
+    return {
+      ...extras,
       page: Number(searchParams.get("page")) || 1,
       pageSize: Number(searchParams.get("pageSize")) || PAGINATION.DEFAULT_PAGE_SIZE,
       search: searchParams.get("search") ?? undefined,
-    }),
-    [searchParams],
-  );
+    };
+  }, [searchParams]);
 
   const setParams = useCallback(
     (next: TableParams) => {

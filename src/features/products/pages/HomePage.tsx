@@ -1,9 +1,9 @@
 import { ArrowRightOutlined, ShopOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { ProductImage, SectionHeading } from "@/components";
-import { buildRoute, ROUTES } from "@/constants";
+import { buildRoute, HOME_SECTION_IDS, ROUTES } from "@/constants";
 import { useGetCategoriesAdmin } from "@/features/categories";
-import { brandColors, brandFontFamily } from "@/theme";
+import { brandColors, brandFontFamily, brandGradients } from "@/theme";
 import { AboutSection } from "../components/home/AboutSection";
 import { BestSellersSection } from "../components/home/BestSellersSection";
 import { BuildYourBoxSection } from "../components/home/BuildYourBoxSection";
@@ -47,11 +47,23 @@ export const HomePage = () => {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden" style={{ background: brandColors.charcoal }}>
+        <ProductImage
+          src="https://images.unsplash.com/photo-1573851552153-816785fecf4a?w=1600"
+          alt=""
+          className="absolute inset-0 h-full w-full"
+        />
         <div
           className="absolute inset-0"
           style={{
             background:
               "linear-gradient(to right, rgba(30,21,13,.95), rgba(30,21,13,.7) 60%, rgba(30,21,13,.3))",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(30,21,13,.8), rgba(30,21,13,0) 40%, rgba(30,21,13,.4))",
           }}
         />
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:py-36">
@@ -85,7 +97,7 @@ export const HomePage = () => {
                 to={ROUTES.SHOP}
                 className="rounded-full px-8 py-3.5 text-[15px] font-semibold text-white"
                 style={{
-                  background: brandColors.walnutDark,
+                  background: brandGradients.gold,
                   boxShadow: "0 24px 48px -16px rgba(51,34,15,.28)",
                 }}
               >
@@ -93,13 +105,35 @@ export const HomePage = () => {
                 Shop Dry Fruits
               </Link>
               <Link
-                to={ROUTES.CATEGORIES}
+                to={`${ROUTES.HOME}#${HOME_SECTION_IDS.giftBoxes}`}
                 className="rounded-full border px-8 py-3.5 text-[15px] font-medium transition-colors hover:opacity-80"
                 style={{ borderColor: "rgba(243,236,221,.4)", color: brandColors.ivory }}
               >
-                Explore Categories <ArrowRightOutlined className="ml-2 text-[13px]" />
+                Explore Gift Boxes <ArrowRightOutlined className="ml-2 text-[13px]" />
               </Link>
             </div>
+            <p
+              className="mt-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12.5px] tracking-wide sm:text-[13px]"
+              style={{ color: "rgba(243,236,221,.7)" }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-3.5 w-3.5"
+                fill={brandColors.leaf}
+                aria-hidden="true"
+              >
+                <path d="M12 2C7 2 3 6 3 12c0 5.5 4 9 9 9 .3-4.6-.4-14.3-6-16.7C10.5 3.3 15 4 17 7c2.3 3.4 1.6 8.6-1 12 3.5-1 5-5 5-8 0-5-4-9-9-9Z" />
+              </svg>
+              100% Fresh Selection
+              <span className="mx-1" style={{ color: brandColors.gold }}>
+                •
+              </span>
+              Premium Quality
+              <span className="mx-1" style={{ color: brandColors.gold }}>
+                •
+              </span>
+              Nationwide Delivery
+            </p>
           </div>
         </div>
 

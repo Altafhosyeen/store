@@ -1,8 +1,8 @@
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { EmptyState, PageHeader, QueryStateBoundary } from "@/components";
-import { CURRENCY } from "@/constants";
 import { useTableParams } from "@/hooks";
+import { formatCurrency } from "@/lib/currency";
 import { useGetCustomers } from "../hooks/use-customers";
 import type { CustomerDto } from "../types/customers-api.types";
 
@@ -19,7 +19,7 @@ export const CustomersListPage = () => {
       title: "Total spent",
       dataIndex: "totalSpent",
       key: "totalSpent",
-      render: (value: number) => `${CURRENCY.SYMBOL}${value.toFixed(2)}`,
+      render: (value: number) => formatCurrency(value),
     },
   ];
 

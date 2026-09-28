@@ -8,7 +8,7 @@ const makeVariant = (overrides: Partial<ProductVariantDto> = {}): ProductVariant
   label: "250g",
   size: 250,
   unit: "g",
-  price: 6.99,
+  price: 700,
   stockQuantity: 40,
   ...overrides,
 });
@@ -24,15 +24,15 @@ export const makeProduct = (overrides: Partial<ProductDto> = {}): ProductDto => 
     categoryId: category.id,
     categoryName: category.name,
     status: PRODUCT_STATUS.PUBLISHED,
-    images: ["https://images.unsplash.com/photo-1600189261867-30e5ffe7b8da?w=600"],
+    images: ["https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600"],
     variants: [
-      makeVariant({ id: "var-1", label: "250g", size: 250, price: 6.99, stockQuantity: 40 }),
+      makeVariant({ id: "var-1", label: "250g", size: 250, price: 700, stockQuantity: 40 }),
       makeVariant({
         id: "var-2",
         label: "500g",
         size: 500,
-        price: 12.49,
-        compareAtPrice: 14.99,
+        price: 1250,
+        compareAtPrice: 1500,
         stockQuantity: 25,
       }),
     ],

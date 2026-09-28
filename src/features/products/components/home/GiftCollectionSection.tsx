@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SectionHeading } from "@/components";
-import { buildRoute, ROUTES } from "@/constants";
+import { buildRoute, HOME_SECTION_IDS, ROUTES } from "@/constants";
 import { useGetCategoriesAdmin } from "@/features/categories";
 import { brandColors } from "@/theme";
 import { PRODUCT_STATUS } from "../../constants/products.constants";
@@ -28,7 +28,11 @@ export const GiftCollectionSection = () => {
   if (!isLoading && (!giftCategory || products.length === 0)) return null;
 
   return (
-    <section className="py-16 sm:py-24" style={{ background: brandColors.cream }}>
+    <section
+      id={HOME_SECTION_IDS.giftBoxes}
+      className="scroll-mt-20 py-16 sm:py-24"
+      style={{ background: brandColors.cream }}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           kicker="For Someone Special"

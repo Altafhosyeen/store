@@ -13,7 +13,7 @@ const HEALTH_POINTS = [
   {
     icon: <ThunderboltOutlined />,
     title: "Energy",
-    description: "A natural pick-me-up for busy days.",
+    description: "A natural pick-me-up for busy days and study sessions.",
   },
   {
     icon: <HeartOutlined />,
@@ -28,11 +28,11 @@ const HEALTH_POINTS = [
   {
     icon: <FireOutlined />,
     title: "Fibre",
-    description: "Dried fruit contains naturally occurring dietary fibre.",
+    description: "Dried fruits like figs and prunes contain naturally occurring dietary fibre.",
   },
   {
     icon: <GoldOutlined />,
-    title: "Minerals",
+    title: "Natural Minerals",
     description: "Naturally occurring minerals in every handful.",
   },
   {

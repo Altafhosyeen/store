@@ -42,12 +42,24 @@ export interface ProductDto {
   isNew?: boolean;
 }
 
+export type ProductSort =
+  | "popular"
+  | "bestselling"
+  | "price-asc"
+  | "price-desc"
+  | "new"
+  | "rating";
+
 export interface ProductListParams extends PaginationParams {
   categoryId?: string;
   brandId?: string;
   status?: ProductStatus;
   minPrice?: number;
   maxPrice?: number;
+  /** Matches against any variant's `label` (e.g. "250g") — a product qualifies if it has that pack size. */
+  weight?: string;
+  minRating?: number;
+  sort?: ProductSort;
 }
 
 export interface ProductVariantPayload {

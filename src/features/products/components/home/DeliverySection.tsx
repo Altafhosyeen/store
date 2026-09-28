@@ -4,20 +4,26 @@ import { useState } from "react";
 import { brandColors, brandFontFamily } from "@/theme";
 
 const CITY_ESTIMATES: Record<string, string> = {
-  "Same City": "1–2 working days",
-  "Nearby Region": "2–4 working days",
-  "Other Areas": "3–6 working days",
+  Islamabad: "1–2 working days",
+  Rawalpindi: "1–2 working days",
+  Lahore: "2–4 working days",
+  Karachi: "2–4 working days",
+  Peshawar: "2–4 working days",
+  Quetta: "3–6 working days",
+  Faisalabad: "2–4 working days",
+  Multan: "2–4 working days",
+  Other: "3–6 working days",
 };
 
 const TIMELINE_TABLE = [
-  { zone: "Same City", window: "1–2 working days" },
+  { zone: "Islamabad / Rawalpindi", window: "1–2 working days" },
   { zone: "Major Cities", window: "2–4 working days" },
   { zone: "Other Areas", window: "3–6 working days" },
 ];
 
 /** City-based delivery estimate card plus a general timeline table. */
 export const DeliverySection = () => {
-  const [city, setCity] = useState("Same City");
+  const [city, setCity] = useState("Rawalpindi");
 
   return (
     <section className="py-16 sm:py-20" style={{ background: brandColors.cream }}>
@@ -35,10 +41,10 @@ export const DeliverySection = () => {
               className="text-2xl font-bold sm:text-4xl"
               style={{ fontFamily: brandFontFamily.display, color: brandColors.walnutDark }}
             >
-              Nationwide Delivery Available
+              Nationwide Delivery Available 🇵🇰
             </h2>
             <p className="mt-3 font-light" style={{ color: brandColors.cocoa }}>
-              Select your area to see the estimated delivery window.
+              Select your city to see the estimated delivery window.
             </p>
           </div>
 
@@ -48,7 +54,7 @@ export const DeliverySection = () => {
               className="mb-2 block text-[13px] font-semibold"
               style={{ color: brandColors.walnut }}
             >
-              Your Area
+              Your City
             </label>
             <Select
               id="delivery-city"

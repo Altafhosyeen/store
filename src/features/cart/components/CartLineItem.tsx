@@ -1,6 +1,6 @@
 import { DeleteOutlined } from "@ant-design/icons";
 import { ProductImage } from "@/components";
-import { CURRENCY } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import type { CartLine } from "@/store";
 import { brandColors, brandFontFamily } from "@/theme";
 
@@ -61,8 +61,7 @@ export const CartLineItem = ({ line, onQuantityChange, onRemove }: CartLineItemP
       className="w-20 shrink-0 text-right font-semibold"
       style={{ color: brandColors.walnutDark }}
     >
-      {CURRENCY.SYMBOL}
-      {(line.unitPrice * line.quantity).toFixed(2)}
+      {formatCurrency(line.unitPrice * line.quantity)}
     </span>
 
     <button

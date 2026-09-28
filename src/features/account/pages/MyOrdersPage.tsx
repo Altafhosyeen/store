@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { EmptyState, QueryStateBoundary, StatusTag } from "@/components";
-import { buildRoute, CURRENCY, ROUTES } from "@/constants";
+import { buildRoute, ROUTES } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import { orderStatusStyles } from "@/theme";
 import { useGetMyOrders } from "../hooks/use-account";
 
@@ -27,10 +28,7 @@ export const MyOrdersPage = () => {
           >
             <div>
               <div className="font-medium">Order #{order.id}</div>
-              <div className="text-neutral-500 text-sm">
-                {CURRENCY.SYMBOL}
-                {order.total.toFixed(2)}
-              </div>
+              <div className="text-neutral-500 text-sm">{formatCurrency(order.total)}</div>
             </div>
             <StatusTag status={order.status} styles={orderStatusStyles} />
           </Link>

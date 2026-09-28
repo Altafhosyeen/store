@@ -1,9 +1,14 @@
 import { EnvironmentOutlined, MailOutlined, WhatsAppOutlined } from "@ant-design/icons";
+import { HOME_SECTION_IDS } from "@/constants";
 import { brandColors, brandFontFamily } from "@/theme";
 
 /** Closing contact band: a short pitch plus contact details, matching the brand's dark accent sections. */
 export const ContactSection = () => (
-  <section className="py-16 sm:py-20" style={{ background: brandColors.cream }}>
+  <section
+    id={HOME_SECTION_IDS.contact}
+    className="scroll-mt-20 py-16 sm:py-20"
+    style={{ background: brandColors.cream }}
+  >
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
       <div
         className="overflow-hidden rounded-3xl"
@@ -29,7 +34,8 @@ export const ContactSection = () => (
               Let&apos;s talk.
             </h2>
             <p className="mt-4 max-w-md font-light" style={{ color: "rgba(243,236,221,.7)" }}>
-              Reach out for gifting, corporate orders, or anything else — we're happy to help.
+              Reach out for wedding favours, corporate gifting, Ramadan hampers or anything else —
+              we respond quickly on WhatsApp.
             </p>
             <div
               className="mt-6 space-y-3 text-[14.5px]"
@@ -41,7 +47,7 @@ export const ContactSection = () => (
               </p>
               <p>
                 <MailOutlined className="mr-2" style={{ color: brandColors.gold }} />
-                hello@royalnuts.example
+                hello@royalnuts.pk
               </p>
               <p>
                 <EnvironmentOutlined className="mr-2" style={{ color: brandColors.gold }} />

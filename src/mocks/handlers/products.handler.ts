@@ -44,13 +44,52 @@ export const productsHandlers = defineHandlers([
       if (params.status) {
         filtered = filtered.filter((p) => p.status === params.status);
       }
+      const minPrice = params.minPrice !== undefined ? Number(params.minPrice) : undefined;
+      const maxPrice = params.maxPrice !== undefined ? Number(params.maxPrice) : undefined;
+      if (minPrice !== undefined || maxPrice !== undefined) {
+        filtered = filtered.filter((p) =>
+          p.variants.some(
+            (v) =>
+              (minPrice === undefined || v.price >= minPrice) &&
+              (maxPrice === undefined || v.price <= maxPrice),
+          ),
+        );
+      }
+      if (params.weight) {
+        filtered = filtered.filter((p) => p.variants.some((v) => v.label === params.weight));
+      }
+      if (params.minRating !== undefined) {
+        const minRating = Number(params.minRating);
+        filtered = filtered.filter((p) => (p.rating ?? 0) >= minRating);
+      }
+
+      const sorted = [...filtered];
+      switch (params.sort) {
+        case "price-asc":
+          sorted.sort((a, b) => (a.variants[0]?.price ?? 0) - (b.variants[0]?.price ?? 0));
+          break;
+        case "price-desc":
+          sorted.sort((a, b) => (b.variants[0]?.price ?? 0) - (a.variants[0]?.price ?? 0));
+          break;
+        case "new":
+          sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          break;
+        case "rating":
+          sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+          break;
+        case "bestselling":
+          sorted.sort((a, b) => Number(b.isBestSeller ?? false) - Number(a.isBestSeller ?? false));
+          break;
+        default:
+          break;
+      }
 
       const page = Number(params.page) || 1;
       const pageSize = Number(params.pageSize) || 12;
       const start = (page - 1) * pageSize;
-      const pageItems = filtered.slice(start, start + pageSize);
+      const pageItems = sorted.slice(start, start + pageSize);
 
-      return makePaginatedResult(pageItems, { total: filtered.length, page, pageSize });
+      return makePaginatedResult(pageItems, { total: sorted.length, page, pageSize });
     },
   },
   {

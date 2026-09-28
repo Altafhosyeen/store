@@ -15,7 +15,7 @@ export const MOCK_CATEGORIES: CategoryDto[] = [
     name: "Cashews",
     slug: "cashews",
     description: "Creamy, buttery cashews — roasted, raw or spiced.",
-    imageUrl: "https://images.unsplash.com/photo-1600189261867-30e5ffe7b8da?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
     productCount: 8,
   }),
   makeCategory({
@@ -47,7 +47,7 @@ export const MOCK_CATEGORIES: CategoryDto[] = [
     name: "Dried Fruit",
     slug: "dried-fruit",
     description: "Naturally sun-dried fruit, no added sugar.",
-    imageUrl: "https://images.unsplash.com/photo-1596591868231-05e808fd126f?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600",
     productCount: 8,
   }),
   makeCategory({
@@ -55,7 +55,7 @@ export const MOCK_CATEGORIES: CategoryDto[] = [
     name: "Trail Mixes",
     slug: "trail-mixes",
     description: "Blended nuts, seeds and dried fruit snack packs.",
-    imageUrl: "https://images.unsplash.com/photo-1594054621968-0dab77f8b3f7?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1567892737950-30c4db37cd89?w=600",
     productCount: 6,
   }),
   makeCategory({
@@ -63,7 +63,7 @@ export const MOCK_CATEGORIES: CategoryDto[] = [
     name: "Seeds",
     slug: "seeds",
     description: "Pumpkin, sunflower and chia seeds.",
-    imageUrl: "https://images.unsplash.com/photo-1508061235736-cdfa2f4c9ce0?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
     productCount: 5,
   }),
   makeCategory({

@@ -3,8 +3,9 @@ import { Button, Select, Space, Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
 import { EmptyState, PageHeader, QueryStateBoundary, StatusTag } from "@/components";
-import { buildRoute, CURRENCY, ROUTES } from "@/constants";
+import { buildRoute, ROUTES } from "@/constants";
 import { useTableParams } from "@/hooks";
+import { formatCurrency } from "@/lib/currency";
 import { orderStatusStyles, paymentStatusStyles } from "@/theme";
 import { ORDER_STATUS_OPTIONS } from "../constants/orders.constants";
 import { useGetOrders } from "../hooks/use-orders";
@@ -24,7 +25,7 @@ export const OrdersListPage = () => {
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (total: number) => `${CURRENCY.SYMBOL}${total.toFixed(2)}`,
+      render: (total: number) => formatCurrency(total),
     },
     {
       title: "Status",

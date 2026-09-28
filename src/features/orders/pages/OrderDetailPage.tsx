@@ -1,7 +1,7 @@
 import { App, Card, Descriptions, Select } from "antd";
 import { useParams } from "react-router-dom";
 import { PageHeader, QueryStateBoundary, StatusTag } from "@/components";
-import { CURRENCY } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import { paymentStatusStyles } from "@/theme";
 import { ORDER_STATUS_OPTIONS } from "../constants/orders.constants";
 import { useGetOrder, useUpdateOrderStatus } from "../hooks/use-orders";
@@ -28,15 +28,11 @@ export const OrderDetailPage = () => {
                     key={`${line.productId}-${line.variantLabel ?? ""}`}
                     label={line.name}
                   >
-                    {line.quantity} × {CURRENCY.SYMBOL}
-                    {line.unitPrice.toFixed(2)}
+                    {line.quantity} × {formatCurrency(line.unitPrice)}
                     {line.variantLabel ? ` (${line.variantLabel})` : ""}
                   </Descriptions.Item>
                 ))}
-                <Descriptions.Item label="Total">
-                  {CURRENCY.SYMBOL}
-                  {order.total.toFixed(2)}
-                </Descriptions.Item>
+                <Descriptions.Item label="Total">{formatCurrency(order.total)}</Descriptions.Item>
               </Descriptions>
             </Card>
 

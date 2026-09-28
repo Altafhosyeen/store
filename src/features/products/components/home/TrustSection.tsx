@@ -10,22 +10,22 @@ const TRUST_POINTS = [
   {
     icon: <SafetyCertificateOutlined />,
     title: "Premium Quality",
-    description: "Every batch is graded and inspected before it reaches you.",
+    description: "Carefully selected products, graded and inspected batch by batch.",
   },
   {
     icon: <GiftOutlined />,
     title: "Freshly Packed",
-    description: "Sealed in food-safe packaging to lock in freshness.",
+    description: "Packed for freshness in sealed, food-safe packaging.",
   },
   {
     icon: <TruckOutlined />,
     title: "Nationwide Delivery",
-    description: "We deliver across the country, door to door.",
+    description: "Delivering across Pakistan, door to door.",
   },
   {
     icon: <CheckCircleOutlined />,
-    title: "Secure Checkout",
-    description: "Simple, secure ordering with cash on delivery available.",
+    title: "Secure Shopping",
+    description: "Safe and simple checkout with Cash on Delivery available.",
   },
 ];
 

@@ -1,4 +1,5 @@
 import { SectionHeading } from "@/components";
+import { HOME_SECTION_IDS } from "@/constants";
 import { brandColors } from "@/theme";
 import { PRODUCT_STATUS } from "../../constants/products.constants";
 import { useAddToCart } from "../../hooks/use-add-to-cart";
@@ -19,7 +20,11 @@ export const BestSellersSection = () => {
   if (!isLoading && bestSellers.length === 0) return null;
 
   return (
-    <section className="py-16 sm:py-24" style={{ background: brandColors.ivory }}>
+    <section
+      id={HOME_SECTION_IDS.bestSellers}
+      className="scroll-mt-20 py-16 sm:py-24"
+      style={{ background: brandColors.ivory }}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading kicker="Customer Favourites" title="Best Sellers" />
 

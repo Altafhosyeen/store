@@ -16,6 +16,15 @@ export const DEBOUNCE = {
 } as const;
 
 export const CURRENCY = {
-  CODE: "USD",
-  SYMBOL: "$",
+  CODE: "PKR",
+  SYMBOL: "Rs. ",
+} as const;
+
+/** Anchor ids for the storefront home page's sections — used by both the home page and the nav's in-page links. */
+export const HOME_SECTION_IDS = {
+  bestSellers: "best-sellers",
+  giftBoxes: "gift-boxes",
+  buildYourBox: "build-your-box",
+  about: "about",
+  contact: "contact",
 } as const;

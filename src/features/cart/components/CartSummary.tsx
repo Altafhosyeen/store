@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { CURRENCY, ROUTES } from "@/constants";
+import { ROUTES } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import { brandColors, brandFontFamily } from "@/theme";
 
 interface CartSummaryProps {
@@ -30,15 +31,13 @@ export const CartSummary = ({ subtotal }: CartSummaryProps) => {
       <div className="mt-4 flex justify-between text-[14.5px]" style={{ color: brandColors.cocoa }}>
         <span>Subtotal</span>
         <span className="font-semibold" style={{ color: brandColors.walnutDark }}>
-          {CURRENCY.SYMBOL}
-          {subtotal.toFixed(2)}
+          {formatCurrency(subtotal)}
         </span>
       </div>
 
       {!qualifiesForFreeDelivery && subtotal > 0 ? (
         <p className="mt-2 text-[12px]" style={{ color: brandColors.goldDark }}>
-          Add {CURRENCY.SYMBOL}
-          {(freeDeliveryThreshold - subtotal).toFixed(2)} more for free delivery
+          Add {formatCurrency(freeDeliveryThreshold - subtotal)} more for free delivery
         </p>
       ) : null}
 
@@ -47,10 +46,7 @@ export const CartSummary = ({ subtotal }: CartSummaryProps) => {
         style={{ borderColor: brandColors.sand, color: brandColors.walnutDark }}
       >
         <span>Total</span>
-        <span>
-          {CURRENCY.SYMBOL}
-          {subtotal.toFixed(2)}
-        </span>
+        <span>{formatCurrency(subtotal)}</span>
       </div>
 
       <button

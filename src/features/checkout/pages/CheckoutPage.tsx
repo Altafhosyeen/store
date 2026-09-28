@@ -1,7 +1,8 @@
 import { App, Button, Form, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 import { SectionHeading } from "@/components";
-import { buildRoute, CURRENCY, ROUTES } from "@/constants";
+import { buildRoute, ROUTES } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import { useCartStore } from "@/store";
 import { brandColors, brandFontFamily } from "@/theme";
 import { PAYMENT_METHOD } from "../constants/checkout.constants";
@@ -168,8 +169,7 @@ export const CheckoutPage = () => {
                   {line.name} × {line.quantity}
                 </span>
                 <span style={{ color: brandColors.walnutDark }}>
-                  {CURRENCY.SYMBOL}
-                  {(line.unitPrice * line.quantity).toFixed(2)}
+                  {formatCurrency(line.unitPrice * line.quantity)}
                 </span>
               </div>
             ))}
@@ -178,10 +178,7 @@ export const CheckoutPage = () => {
               style={{ borderColor: brandColors.sand, color: brandColors.walnutDark }}
             >
               <span>Total</span>
-              <span>
-                {CURRENCY.SYMBOL}
-                {subtotal.toFixed(2)}
-              </span>
+              <span>{formatCurrency(subtotal)}</span>
             </div>
           </div>
         </div>

@@ -16,28 +16,28 @@ export const makeOrder = (overrides: Partial<OrderDto> = {}): OrderDto => ({
       name: "Roasted Cashews",
       variantLabel: "250g",
       quantity: 2,
-      unitPrice: 6.99,
+      unitPrice: 700,
     },
   ],
-  total: 13.98,
+  total: 1400,
   shippingAddress: {
     fullName: MOCK_CUSTOMER.name,
-    phone: "+1 555 0100",
-    line1: "123 Market St",
-    city: "Springfield",
-    postalCode: "12345",
+    phone: "+92 300 1234567",
+    line1: "House 12, Street 4, F-7",
+    city: "Islamabad",
+    postalCode: "44000",
   },
   createdAt: new Date().toISOString(),
   ...overrides,
 });
 
 const CITIES = [
-  { city: "Springfield", postalCode: "12345" },
-  { city: "Riverside", postalCode: "94501" },
-  { city: "Lakeview", postalCode: "60602" },
-  { city: "Fairview", postalCode: "30301" },
-  { city: "Brookhaven", postalCode: "77002" },
-  { city: "Maplewood", postalCode: "08701" },
+  { city: "Islamabad", postalCode: "44000" },
+  { city: "Rawalpindi", postalCode: "46000" },
+  { city: "Lahore", postalCode: "54000" },
+  { city: "Karachi", postalCode: "74200" },
+  { city: "Peshawar", postalCode: "25000" },
+  { city: "Faisalabad", postalCode: "38000" },
 ];
 
 const STATUS_SEQUENCE = Object.values(ORDER_STATUS);
@@ -69,11 +69,7 @@ export const makeOrderList = (count: number): OrderDto[] =>
     const customer =
       index % 4 === 0 ? MOCK_CUSTOMER : MOCK_CUSTOMERS[index % MOCK_CUSTOMERS.length];
     const lines = linesFor(index + 1);
-    const total =
-      Math.round(
-        (lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0) + Number.EPSILON) *
-          100,
-      ) / 100;
+    const total = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
     const status = STATUS_SEQUENCE[index % STATUS_SEQUENCE.length];
     const location = CITIES[index % CITIES.length];
     const createdAt = new Date(Date.now() - (count - index) * 43_200_000).toISOString();
@@ -93,8 +89,8 @@ export const makeOrderList = (count: number): OrderDto[] =>
       total,
       shippingAddress: {
         fullName: customer.name,
-        phone: `+1 555 01${String(index).padStart(2, "0")}`,
-        line1: `${100 + index} Market St`,
+        phone: `+92 3${String(index).padStart(2, "0")} ${1000000 + index}`,
+        line1: `House ${100 + index}, Street ${(index % 20) + 1}`,
         city: location.city,
         postalCode: location.postalCode,
       },

@@ -3,6 +3,7 @@ import { Button, Card, Descriptions } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader, QueryStateBoundary, StatusTag } from "@/components";
 import { buildRoute, ROUTES } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import { productStatusStyles } from "@/theme";
 import { useGetProduct } from "../hooks/use-products";
 
@@ -38,7 +39,7 @@ export const ProductDetailPage = () => {
                 <StatusTag status={product.status} styles={productStatusStyles} />
               </Descriptions.Item>
               <Descriptions.Item label="Variants" span={2}>
-                {product.variants.map((v) => `${v.label} — $${v.price.toFixed(2)}`).join(", ")}
+                {product.variants.map((v) => `${v.label} — ${formatCurrency(v.price)}`).join(", ")}
               </Descriptions.Item>
               <Descriptions.Item label="Description" span={2}>
                 {product.description}

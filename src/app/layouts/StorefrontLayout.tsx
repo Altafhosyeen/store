@@ -1,15 +1,17 @@
 import {
   FacebookFilled,
+  HeartOutlined,
   InstagramFilled,
   MenuOutlined,
   SearchOutlined,
   ShoppingOutlined,
   UserOutlined,
+  WhatsAppOutlined,
 } from "@ant-design/icons";
-import { Badge, Button, ConfigProvider, Drawer, Flex, Layout, Space } from "antd";
-import { Suspense, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
-import { APP_NAME, ROUTES } from "@/constants";
+import { App, Badge, Button, ConfigProvider, Drawer, Flex, Layout, Space } from "antd";
+import { Suspense, useEffect, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { APP_NAME, HOME_SECTION_IDS, ROUTES } from "@/constants";
 import { useAuthStore, useCartStore } from "@/store";
 import { brandColors, brandFontFamily, storefrontAntdTheme } from "@/theme";
 import { PageLoader } from "./components/PageLoader";
@@ -20,6 +22,11 @@ const NAV_LINKS: Array<{ label: string; to: string }> = [
   { label: "Home", to: ROUTES.HOME },
   { label: "Shop", to: ROUTES.SHOP },
   { label: "Categories", to: ROUTES.CATEGORIES },
+  { label: "Best Sellers", to: `${ROUTES.HOME}#${HOME_SECTION_IDS.bestSellers}` },
+  { label: "Gift Boxes", to: `${ROUTES.HOME}#${HOME_SECTION_IDS.giftBoxes}` },
+  { label: "Build Your Box", to: `${ROUTES.HOME}#${HOME_SECTION_IDS.buildYourBox}` },
+  { label: "About Us", to: `${ROUTES.HOME}#${HOME_SECTION_IDS.about}` },
+  { label: "Contact", to: `${ROUTES.HOME}#${HOME_SECTION_IDS.contact}` },
 ];
 
 const LogoMark = () => (
@@ -66,16 +73,25 @@ export const StorefrontLayout = () => {
   const cartCount = useCartStore((state) => state.lines.reduce((sum, l) => sum + l.quantity, 0));
   const user = useAuthStore((state) => state.user);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { message } = App.useApp();
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) return;
+    const target = document.getElementById(hash.slice(1));
+    target?.scrollIntoView({ behavior: "smooth" });
+  }, [hash]);
 
   return (
     <ConfigProvider theme={storefrontAntdTheme}>
       <Layout className="min-h-dvh" style={{ background: brandColors.cream }}>
         <div
-          className="relative z-[60] text-center text-[12.5px] tracking-wide sm:text-[13px]"
+          className="relative z-[60] overflow-hidden text-center text-[12.5px] tracking-wide sm:text-[13px]"
           style={{ background: brandColors.charcoal, color: brandColors.ivory }}
         >
-          <div className="mx-auto max-w-7xl px-4 py-2">
-            Free delivery on orders above Rs. 3,000 — nationwide across Pakistan.
+          <div className="mx-auto max-w-7xl truncate px-4 py-2">
+            🇵🇰 Premium Dry Fruits · Freshly Packed · Delivery Across Pakistan — Free Delivery on
+            Orders Above Rs. 3,000
           </div>
         </div>
 
@@ -98,12 +114,12 @@ export const StorefrontLayout = () => {
             </Link>
 
             <ul
-              className="hidden items-center gap-7 text-[14.5px] font-medium lg:flex"
+              className="hidden items-center gap-5 text-[14px] font-medium xl:gap-7 xl:text-[14.5px] lg:flex"
               style={{ color: brandColors.walnut }}
             >
               {NAV_LINKS.map((link) => (
                 <li key={link.to}>
-                  <Link to={link.to} className="storefront-nav-link">
+                  <Link to={link.to} className="storefront-nav-link whitespace-nowrap">
                     {link.label}
                   </Link>
                 </li>
@@ -119,9 +135,14 @@ export const StorefrontLayout = () => {
                   aria-label="Search products"
                 />
               </Link>
-              <Link to={user ? ROUTES.ACCOUNT : ROUTES.LOGIN}>
-                <Button type="text" shape="circle" icon={<UserOutlined />} aria-label="Account" />
-              </Link>
+              <Button
+                type="text"
+                shape="circle"
+                icon={<HeartOutlined />}
+                aria-label="Wishlist"
+                className="hidden sm:inline-flex"
+                onClick={() => message.info("Wishlist is coming soon.")}
+              />
               <Link to={ROUTES.CART}>
                 <Badge count={cartCount} size="small" color={brandColors.goldDark} offset={[-4, 4]}>
                   <Button
@@ -131,6 +152,9 @@ export const StorefrontLayout = () => {
                     aria-label="Cart"
                   />
                 </Badge>
+              </Link>
+              <Link to={user ? ROUTES.ACCOUNT : ROUTES.LOGIN}>
+                <Button type="text" shape="circle" icon={<UserOutlined />} aria-label="Account" />
               </Link>
               <Button
                 type="text"
@@ -337,6 +361,17 @@ export const StorefrontLayout = () => {
             </div>
           </div>
         </Footer>
+
+        <a
+          href="https://wa.me/"
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full text-2xl text-white shadow-lg transition-transform hover:scale-110"
+          style={{ background: "#25D366", boxShadow: "0 24px 48px -16px rgba(51,34,15,.28)" }}
+          aria-label="Order via WhatsApp"
+        >
+          <WhatsAppOutlined />
+        </a>
       </Layout>
     </ConfigProvider>
   );

@@ -2,7 +2,8 @@ import { GiftOutlined, ShoppingOutlined } from "@ant-design/icons";
 import { App } from "antd";
 import { useMemo, useState } from "react";
 import { ProductImage, SectionHeading } from "@/components";
-import { CURRENCY } from "@/constants";
+import { HOME_SECTION_IDS } from "@/constants";
+import { formatCurrency } from "@/lib/currency";
 import { useCartStore } from "@/store";
 import { brandColors, brandFontFamily } from "@/theme";
 import { PRODUCT_STATUS } from "../../constants/products.constants";
@@ -17,10 +18,28 @@ interface BoxSize {
 }
 
 const BOX_SIZES: BoxSize[] = [
-  { key: "mini", label: "Mini Box", slots: 3, basePrice: 450, description: "3 items" },
-  { key: "classic", label: "Classic Box", slots: 5, basePrice: 750, description: "5 items" },
-  { key: "premium", label: "Premium Box", slots: 7, basePrice: 1150, description: "7 items" },
-  { key: "royal", label: "Royal Box", slots: 9, basePrice: 1650, description: "9 items" },
+  { key: "mini", label: "Mini Box", slots: 3, basePrice: 450, description: "3 items • 100g each" },
+  {
+    key: "classic",
+    label: "Classic Box",
+    slots: 5,
+    basePrice: 750,
+    description: "5 items • 150g each",
+  },
+  {
+    key: "premium",
+    label: "Premium Box",
+    slots: 7,
+    basePrice: 1150,
+    description: "7 items • 200g each",
+  },
+  {
+    key: "royal",
+    label: "Royal Box",
+    slots: 9,
+    basePrice: 1650,
+    description: "9 items • 250g each",
+  },
 ];
 
 const PER_ITEM_PRICE = 180;
@@ -77,7 +96,11 @@ export const BuildYourBoxSection = () => {
   };
 
   return (
-    <section className="py-16 sm:py-24" style={{ background: brandColors.ivory }}>
+    <section
+      id={HOME_SECTION_IDS.buildYourBox}
+      className="scroll-mt-20 py-16 sm:py-24"
+      style={{ background: brandColors.ivory }}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           kicker="Made By You, Packed By Us"
@@ -129,13 +152,16 @@ export const BuildYourBoxSection = () => {
                         className="mt-1.5 text-[13px] font-bold"
                         style={{ color: brandColors.goldDark }}
                       >
-                        Base {CURRENCY.SYMBOL}
-                        {option.basePrice}
+                        Base {formatCurrency(option.basePrice)}
                       </p>
                     </button>
                   );
                 })}
               </div>
+              <p className="mt-3 text-[12px]" style={{ color: brandColors.cocoa, opacity: 0.7 }}>
+                Base price covers the wooden presentation box, lining and ribbon. Products are
+                priced per portion below.
+              </p>
             </div>
 
             <div>
@@ -233,27 +259,18 @@ export const BuildYourBoxSection = () => {
               >
                 <div className="flex justify-between" style={{ color: "rgba(243,236,221,.75)" }}>
                   <span>Box &amp; packaging</span>
-                  <span>
-                    {CURRENCY.SYMBOL}
-                    {size.basePrice}
-                  </span>
+                  <span>{formatCurrency(size.basePrice)}</span>
                 </div>
                 <div className="flex justify-between" style={{ color: "rgba(243,236,221,.75)" }}>
                   <span>Selected products</span>
-                  <span>
-                    {CURRENCY.SYMBOL}
-                    {itemsPrice}
-                  </span>
+                  <span>{formatCurrency(itemsPrice)}</span>
                 </div>
                 <div
                   className="flex justify-between pt-1.5 text-lg font-bold"
                   style={{ color: brandColors.gold }}
                 >
                   <span>Total</span>
-                  <span>
-                    {CURRENCY.SYMBOL}
-                    {total}
-                  </span>
+                  <span>{formatCurrency(total)}</span>
                 </div>
               </div>
 
