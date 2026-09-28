@@ -1,288 +1,256 @@
-import { GiftOutlined, ShoppingOutlined } from "@ant-design/icons";
-import { App } from "antd";
-import { useMemo, useState } from "react";
-import { ProductImage, SectionHeading } from "@/components";
+import { useState } from "react";
+import { STORE_IMAGES } from "@/assets/images";
+import { SectionHeading } from "@/components";
 import { HOME_SECTION_IDS } from "@/constants";
 import { formatCurrency } from "@/lib/currency";
-import { useCartStore } from "@/store";
-import { brandColors, brandFontFamily } from "@/theme";
-import { PRODUCT_STATUS } from "../../constants/products.constants";
-import { useGetProducts } from "../../hooks/use-products";
+import { useCartStore, useUiStore } from "@/store";
+import { BOX_PRODUCTS, BOX_SIZES, type BoxSizeKey, portionPrice } from "./box-builder.data";
 
-interface BoxSize {
-  key: string;
-  label: string;
-  slots: number;
-  basePrice: number;
-  description: string;
-}
+/** Stable ids for the preview grid's fixed positions (the largest box has 10). */
+const SLOT_IDS = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"];
 
-const BOX_SIZES: BoxSize[] = [
-  { key: "mini", label: "Mini Box", slots: 3, basePrice: 450, description: "3 items • 100g each" },
-  {
-    key: "classic",
-    label: "Classic Box",
-    slots: 5,
-    basePrice: 750,
-    description: "5 items • 150g each",
-  },
-  {
-    key: "premium",
-    label: "Premium Box",
-    slots: 7,
-    basePrice: 1150,
-    description: "7 items • 200g each",
-  },
-  {
-    key: "royal",
-    label: "Royal Box",
-    slots: 9,
-    basePrice: 1650,
-    description: "9 items • 250g each",
-  },
-];
+const StepTitle = ({ step, children }: { step: number; children: React.ReactNode }) => (
+  <p className="mb-4 flex items-center gap-3 font-display text-xl font-bold text-walnutdk">
+    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-walnutdk font-body text-sm font-bold text-gold">
+      {step}
+    </span>
+    {children}
+  </p>
+);
 
-const PER_ITEM_PRICE = 180;
-
-/** Lets a customer pick a box size and fill it with products, then adds the bundle as one cart line. */
+/** Pick a box size, fill it with favourites, and add the whole box to the cart as one line. */
 export const BuildYourBoxSection = () => {
-  const { message } = App.useApp();
-  const [sizeKey, setSizeKey] = useState("classic");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sizeKey, setSizeKey] = useState<BoxSizeKey>("classic");
+  const [picked, setPicked] = useState<number[]>([]);
   const addLine = useCartStore((state) => state.addLine);
+  const showToast = useUiStore((state) => state.showToast);
+  const openOverlay = useUiStore((state) => state.openOverlay);
 
-  const { data } = useGetProducts({ page: 1, pageSize: 24, status: PRODUCT_STATUS.PUBLISHED });
-  const products = data?.items ?? [];
+  const size = BOX_SIZES.find((s) => s.key === sizeKey) ?? BOX_SIZES[1];
+  const itemsPrice = picked.reduce((sum, i) => sum + portionPrice(BOX_PRODUCTS[i], size), 0);
 
-  const size = BOX_SIZES.find((s) => s.key === sizeKey) ?? BOX_SIZES[0];
-  const selectedProducts = useMemo(
-    () => products.filter((p) => selectedIds.includes(p.id)),
-    [products, selectedIds],
-  );
-  const itemsPrice = selectedProducts.length * PER_ITEM_PRICE;
-  const total = size.basePrice + itemsPrice;
-
-  const toggleProduct = (productId: string) => {
-    setSelectedIds((current) => {
-      if (current.includes(productId)) return current.filter((id) => id !== productId);
-      if (current.length >= size.slots) {
-        message.warning(`This box holds ${size.slots} items — remove one to add another.`);
-        return current;
-      }
-      return [...current, productId];
-    });
+  const chooseSize = (key: BoxSizeKey) => {
+    const next = BOX_SIZES.find((s) => s.key === key);
+    setSizeKey(key);
+    if (next) setPicked((current) => current.slice(0, next.slots));
   };
 
-  const handleSizeChange = (nextKey: string) => {
-    setSizeKey(nextKey);
-    const nextSize = BOX_SIZES.find((s) => s.key === nextKey);
-    if (nextSize) setSelectedIds((current) => current.slice(0, nextSize.slots));
+  const toggle = (index: number) => {
+    if (picked.includes(index)) {
+      setPicked(picked.filter((i) => i !== index));
+      return;
+    }
+    if (picked.length >= size.slots) {
+      showToast(
+        `${size.label} holds ${size.slots} items — remove one first or choose a bigger box.`,
+        "circle-info",
+      );
+      return;
+    }
+    setPicked([...picked, index]);
   };
 
   const addBoxToCart = () => {
-    if (selectedProducts.length === 0) {
-      message.warning("Add at least one product to your box first.");
+    if (picked.length === 0) {
+      showToast("Choose at least one product for your box.", "circle-info");
       return;
     }
     addLine({
       productId: `custom-box-${Date.now()}`,
-      name: `${size.label} — ${selectedProducts.map((p) => p.name).join(", ")}`,
-      unitPrice: total,
+      name: `Custom ${size.label} (Build Your Own)`,
+      imageUrl: STORE_IMAGES.giftbox,
+      unitPrice: size.basePrice + itemsPrice,
       quantity: 1,
-      variantLabel: `${selectedProducts.length} item${selectedProducts.length === 1 ? "" : "s"}`,
+      variantLabel: `${size.portion} × ${picked.length}`,
     });
-    message.success("Your custom box was added to the cart.");
-    setSelectedIds([]);
+    setPicked([]);
+    showToast("Your custom Royal Box was added to the cart 👑");
+    openOverlay("cart");
   };
 
   return (
-    <section
-      id={HOME_SECTION_IDS.buildYourBox}
-      className="scroll-mt-20 py-16 sm:py-24"
-      style={{ background: brandColors.ivory }}
-    >
+    <section id={HOME_SECTION_IDS.buildYourBox} className="pk-pattern bg-ivory py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           kicker="Made By You, Packed By Us"
-          title="Build Your Own Box"
-          description="Choose your box, fill it with your favourites, and we'll pack it in signature presentation."
+          title="Build Your Royal Box"
+          description="Choose your box, fill it with your favorites, and we'll pack it in signature Royal Nuts presentation — perfect for home or gifting."
+          icon="wand-magic-sparkles"
+          className="mb-12"
         />
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-5 lg:gap-8">
+        <div className="grid gap-6 lg:grid-cols-5 lg:gap-8">
           <div className="space-y-8 lg:col-span-3">
-            <div>
-              <p
-                className="mb-4 flex items-center gap-3 text-xl font-bold"
-                style={{ fontFamily: brandFontFamily.display, color: brandColors.walnutDark }}
-              >
-                <span
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
-                  style={{ background: brandColors.walnutDark, color: brandColors.gold }}
-                >
-                  1
-                </span>
-                Choose Your Box Size
-              </p>
+            <div className="reveal">
+              <StepTitle step={1}>Choose Your Box Size</StepTitle>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {BOX_SIZES.map((option) => {
-                  const active = option.key === sizeKey;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => handleSizeChange(option.key)}
-                      className="rounded-2xl border-2 p-4 text-center transition-colors"
-                      style={
-                        active
-                          ? { borderColor: brandColors.gold, background: "rgba(201,162,75,.09)" }
-                          : { borderColor: brandColors.sand, background: "rgba(255,255,255,.7)" }
-                      }
-                    >
-                      <GiftOutlined style={{ fontSize: 22, color: brandColors.cocoa }} />
-                      <p
-                        className="mt-2 text-[15px] font-semibold"
-                        style={{ color: brandColors.walnutDark }}
-                      >
-                        {option.label}
-                      </p>
-                      <p className="text-[12px]" style={{ color: brandColors.cocoa, opacity: 0.7 }}>
-                        {option.description}
-                      </p>
-                      <p
-                        className="mt-1.5 text-[13px] font-bold"
-                        style={{ color: brandColors.goldDark }}
-                      >
-                        Base {formatCurrency(option.basePrice)}
-                      </p>
-                    </button>
-                  );
-                })}
+                {BOX_SIZES.map((option) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => chooseSize(option.key)}
+                    className={`box-size-card btn-press rounded-2xl border-2 border-sand bg-white/70 p-4 text-center transition-all ${option.key === sizeKey ? "active" : ""}`}
+                    aria-pressed={option.key === sizeKey}
+                  >
+                    <i
+                      className={`fa-solid fa-${option.icon} mb-2 text-2xl ${option.key === "royal" ? "text-golddk" : "text-cocoa"}`}
+                    />
+                    <p className="text-[15px] font-semibold text-walnutdk">{option.label}</p>
+                    <p className="text-[12px] text-cocoa/70">
+                      {option.slots} items • {option.portion} each
+                    </p>
+                    <p className="mt-1.5 text-[13px] font-bold text-golddk">
+                      Base {formatCurrency(option.basePrice)}
+                    </p>
+                  </button>
+                ))}
               </div>
-              <p className="mt-3 text-[12px]" style={{ color: brandColors.cocoa, opacity: 0.7 }}>
+              <p className="mt-3 text-[12.5px] text-cocoa/70">
+                <i className="fa-solid fa-circle-info mr-1.5 text-golddk" />
                 Base price covers the wooden presentation box, lining and ribbon. Products are
                 priced per portion below.
               </p>
             </div>
 
-            <div>
-              <p
-                className="mb-4 flex items-center gap-3 text-xl font-bold"
-                style={{ fontFamily: brandFontFamily.display, color: brandColors.walnutDark }}
-              >
-                <span
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
-                  style={{ background: brandColors.walnutDark, color: brandColors.gold }}
-                >
-                  2
+            <div className="reveal">
+              <StepTitle step={2}>
+                Fill It With Favorites
+                <span className="ml-auto rounded-full border border-gold/30 bg-gold/10 px-3.5 py-1 font-body text-[13px] font-medium text-golddk">
+                  {picked.length} / {size.slots} selected · {size.portion} each
                 </span>
-                Fill It With Favourites
-                <span
-                  className="ml-auto rounded-full border px-3.5 py-1 text-[13px] font-medium"
-                  style={{
-                    borderColor: "rgba(201,162,75,.3)",
-                    background: "rgba(201,162,75,.1)",
-                    color: brandColors.goldDark,
-                  }}
-                >
-                  {selectedIds.length} / {size.slots}
-                </span>
-              </p>
+              </StepTitle>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {products.map((product) => {
-                  const active = selectedIds.includes(product.id);
-                  return (
-                    <button
-                      key={product.id}
-                      type="button"
-                      onClick={() => toggleProduct(product.id)}
-                      className="overflow-hidden rounded-xl border-2 text-left transition-colors"
-                      style={
-                        active
-                          ? { borderColor: brandColors.gold, background: "rgba(201,162,75,.1)" }
-                          : { borderColor: brandColors.sand, background: "white" }
-                      }
-                    >
-                      <ProductImage
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="aspect-square w-full"
-                      />
-                      <p
-                        className="truncate px-2.5 py-2 text-[12.5px] font-medium"
-                        style={{ color: brandColors.walnutDark }}
-                      >
+                {BOX_PRODUCTS.map((product, index) => (
+                  <button
+                    key={product.name}
+                    type="button"
+                    onClick={() => toggle(index)}
+                    className={`box-item btn-press relative flex items-center gap-3 rounded-xl border-2 border-sand bg-white/70 p-2.5 text-left transition-all ${picked.includes(index) ? "active" : ""}`}
+                    aria-pressed={picked.includes(index)}
+                  >
+                    <img
+                      src={product.image}
+                      alt={`${product.name} for custom royal box`}
+                      loading="lazy"
+                      className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate text-[13.5px] font-semibold leading-tight text-walnutdk">
                         {product.name}
-                      </p>
-                    </button>
-                  );
-                })}
+                      </span>
+                      <span className="block text-[11px] text-cocoa/70">
+                        {product.urduName} · {formatCurrency(portionPrice(product, size))}/
+                        {size.portion}
+                      </span>
+                    </span>
+                    <span className="box-check absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] text-white shadow-card">
+                      <i className="fa-solid fa-check" />
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
           <div className="lg:col-span-2">
-            <div
-              className="relative overflow-hidden rounded-3xl p-6 sm:p-7"
-              style={{
-                background: brandColors.walnutDark,
-                boxShadow: "0 24px 48px -16px rgba(51,34,15,.28)",
-              }}
-            >
-              <p
-                className="flex items-center gap-2 text-2xl font-bold"
-                style={{ fontFamily: brandFontFamily.display, color: brandColors.cream }}
-              >
-                <GiftOutlined style={{ color: brandColors.gold }} /> Your Box
-              </p>
-              <p className="mt-1 text-[13px]" style={{ color: "rgba(243,236,221,.6)" }}>
-                {size.label}
-              </p>
-
-              {selectedProducts.length > 0 ? (
-                <ol
-                  className="mt-5 max-h-[220px] list-decimal space-y-2 overflow-y-auto pl-5 text-[14px]"
-                  style={{ color: "rgba(243,236,221,.9)" }}
-                >
-                  {selectedProducts.map((p) => (
-                    <li key={p.id}>{p.name}</li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="mt-5 text-[13.5px] italic" style={{ color: "rgba(243,236,221,.5)" }}>
-                  Select products to see them appear here…
+            <div className="reveal lg:sticky lg:top-28">
+              <div className="relative overflow-hidden rounded-3xl bg-walnutdk p-6 text-ivory shadow-lift sm:p-7">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
+                <p className="flex items-center gap-2 font-display text-2xl font-bold text-cream">
+                  <i className="fa-solid fa-crown text-lg text-gold" /> Your Royal Box
                 </p>
-              )}
+                <p className="mt-1 text-[13px] text-ivory/60">
+                  {size.label} · up to {size.slots} items · {size.portion} per item
+                </p>
 
-              <div
-                className="mt-5 space-y-1.5 border-t pt-4 text-[14px]"
-                style={{ borderColor: "rgba(243,236,221,.15)" }}
-              >
-                <div className="flex justify-between" style={{ color: "rgba(243,236,221,.75)" }}>
-                  <span>Box &amp; packaging</span>
-                  <span>{formatCurrency(size.basePrice)}</span>
+                <div className="my-5 rounded-2xl border border-gold/20 bg-charcoal/60 p-4">
+                  <div className="grid min-h-[56px] grid-cols-5 gap-2">
+                    {SLOT_IDS.slice(0, size.slots).map((slotId, slot) => {
+                      const product =
+                        picked[slot] !== undefined ? BOX_PRODUCTS[picked[slot]] : null;
+                      return product ? (
+                        <div
+                          key={`${slotId}-${product.name}`}
+                          className="badge-pop aspect-square overflow-hidden rounded-lg border border-gold/40 shadow-card"
+                        >
+                          <img
+                            src={product.image}
+                            alt={`${product.name} in your royal box`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          key={slotId}
+                          className="flex aspect-square items-center justify-center rounded-lg border border-dashed border-ivory/25 text-[11px] text-ivory/25"
+                        >
+                          <i className="fa-solid fa-plus" />
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex justify-between" style={{ color: "rgba(243,236,221,.75)" }}>
-                  <span>Selected products</span>
-                  <span>{formatCurrency(itemsPrice)}</span>
+
+                {picked.length > 0 ? (
+                  <ol className="no-scrollbar max-h-[220px] list-inside list-decimal space-y-2 overflow-y-auto text-[14px] marker:text-gold/70">
+                    {picked.map((index) => {
+                      const product = BOX_PRODUCTS[index];
+                      return (
+                        <li key={product.name} className="flex items-center justify-between gap-2">
+                          <span className="text-ivory/90">
+                            {product.name}{" "}
+                            <span className="text-[12px] text-ivory/50">{product.urduName}</span>
+                          </span>
+                          <span className="flex shrink-0 items-center gap-2">
+                            <span className="text-gold/90">
+                              {formatCurrency(portionPrice(product, size))}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => toggle(index)}
+                              className="text-ivory/40 transition-colors hover:text-red-400"
+                              aria-label={`Remove ${product.name} from box`}
+                            >
+                              <i className="fa-solid fa-xmark text-[12px]" />
+                            </button>
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                ) : (
+                  <p className="text-[13.5px] font-light italic text-ivory/50">
+                    Select products to see them appear here…
+                  </p>
+                )}
+
+                <div className="mt-5 space-y-1.5 border-t border-ivory/15 pt-4 text-[14px]">
+                  <div className="flex justify-between text-ivory/75">
+                    <span>Box &amp; packaging</span>
+                    <span>{formatCurrency(size.basePrice)}</span>
+                  </div>
+                  <div className="flex justify-between text-ivory/75">
+                    <span>Selected products</span>
+                    <span>{formatCurrency(itemsPrice)}</span>
+                  </div>
+                  <div className="flex justify-between pt-1.5 text-lg font-bold text-gold">
+                    <span>Total</span>
+                    <span>{formatCurrency(size.basePrice + itemsPrice)}</span>
+                  </div>
                 </div>
-                <div
-                  className="flex justify-between pt-1.5 text-lg font-bold"
-                  style={{ color: brandColors.gold }}
+
+                <button
+                  type="button"
+                  onClick={addBoxToCart}
+                  className="btn-gold btn-press mt-5 w-full rounded-xl py-3.5 text-[15px] font-semibold text-white"
                 >
-                  <span>Total</span>
-                  <span>{formatCurrency(total)}</span>
-                </div>
+                  <i className="fa-solid fa-bag-shopping mr-2" />
+                  Add Custom Box to Cart
+                </button>
+                <p className="mt-3 text-center text-[12px] text-ivory/50">
+                  Send us a personal gift message on WhatsApp once you&apos;ve ordered.
+                </p>
               </div>
-
-              <button
-                type="button"
-                onClick={addBoxToCart}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] font-semibold text-white transition-transform hover:-translate-y-0.5"
-                style={{ background: `linear-gradient(135deg, #D4AF5C, ${brandColors.goldDark})` }}
-              >
-                <ShoppingOutlined />
-                Add Custom Box to Cart
-              </button>
             </div>
           </div>
         </div>

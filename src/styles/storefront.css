@@ -1,0 +1,444 @@
+/*
+ * Storefront look — ported from the Royal Nuts reference design. Everything is
+ * scoped under `.rn-store` (the StorefrontLayout root) so the Admin console is
+ * untouched.
+ *
+ * Specificity plan: the reset holds at (0,1,0). That beats Ant Design's global
+ * element rules (`:where(.css-…) a` = (0,0,1)) and ties with Tailwind utilities,
+ * which are emitted later and so win. Ant Design injects its component styles
+ * at the top of <head> (earlier than this sheet), so the reset skips any
+ * element carrying an `ant-` class instead of competing with them.
+ */
+
+@layer base {
+  .rn-store {
+    font-family: "Jost", -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Browser defaults the reference relies on; antd's body sets 14px / 1.5714. */
+    font-size: 16px;
+    line-height: 1.5;
+    color: #33220f;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /*
+   * Tailwind-preflight equivalents for storefront markup. `:where(:not([class*="ant-"]))`
+   * keeps Ant Design components (checkout form, account pages) on their own
+   * styles while holding the selector at (0,1,0).
+   */
+  .rn-store :where(*, *::before, *::after):where(:not([class*="ant-"])) {
+    border-width: 0;
+    border-style: solid;
+    border-color: #e5e7eb;
+  }
+
+  .rn-store :where(h1, h2, h3, h4, h5, h6):where(:not([class*="ant-"])) {
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    margin: 0;
+  }
+
+  .rn-store :where(p, blockquote, figure, dl, dd, ul, ol):where(:not([class*="ant-"])) {
+    margin: 0;
+  }
+
+  .rn-store :where(ul, ol):where(:not([class*="ant-"])) {
+    list-style: none;
+    padding: 0;
+  }
+
+  .rn-store :where(a):where(:not([class*="ant-"])),
+  .rn-store :where(a):where(:not([class*="ant-"])):hover,
+  .rn-store :where(a):where(:not([class*="ant-"])):active,
+  .rn-store :where(a):where(:not([class*="ant-"])):focus {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  .rn-store :where(button, input, select, textarea):where(:not([class*="ant-"])) {
+    font-family: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+  }
+
+  .rn-store :where(button, [role="button"]):where(:not([class*="ant-"])) {
+    cursor: pointer;
+    background-color: transparent;
+  }
+
+  .rn-store :where(img, video):where(:not([class*="ant-"])) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .rn-store :where(input, select, textarea):where(:not([class*="ant-"])) {
+    outline: none;
+  }
+
+  .rn-store :where(input:focus, select:focus, textarea:focus):where(:not([class*="ant-"])) {
+    border-color: #c9a24b;
+    box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.18);
+  }
+
+  .rn-store ::selection {
+    background: #c9a24b;
+    color: #fff;
+  }
+}
+
+/*
+ * Brand classes live in the components layer: after the scoped reset above,
+ * before Tailwind utilities — so a utility on the same element still wins.
+ */
+@layer components {
+  /* ============ DECOR ============ */
+  .gold-line {
+    background: linear-gradient(90deg, transparent, #c9a24b 20%, #c9a24b 80%, transparent);
+    height: 1px;
+  }
+  .kicker {
+    letter-spacing: 0.3em;
+  }
+  .pk-pattern {
+    background-image:
+      repeating-linear-gradient(45deg, rgba(201, 162, 75, 0.05) 0 2px, transparent 2px 18px),
+      repeating-linear-gradient(-45deg, rgba(201, 162, 75, 0.05) 0 2px, transparent 2px 18px);
+  }
+  .paper-texture {
+    background-image: radial-gradient(rgba(74, 50, 34, 0.045) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .glass {
+    background: rgba(250, 246, 238, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .glass-dark {
+    background: rgba(30, 21, 13, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .star-g {
+    color: #c9a24b;
+  }
+  /* ============ FLOATING PARTICLES ============ */
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-18px) rotate(8deg);
+    }
+  }
+  @keyframes floaty2 {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-28px) rotate(-10deg);
+    }
+  }
+  .float-a {
+    animation: floaty 7s ease-in-out infinite;
+  }
+  .float-b {
+    animation: floaty2 9s ease-in-out infinite;
+  }
+  .float-c {
+    animation: floaty 11s ease-in-out infinite;
+  }
+  /* ============ CARDS ============ */
+  .p-card {
+    transition:
+      transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+      box-shadow 0.45s;
+  }
+  .p-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px -16px rgba(51, 34, 15, 0.28);
+  }
+  .p-card .p-img img {
+    transition: transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .p-card:hover .p-img img {
+    transform: scale(1.07);
+  }
+  .p-card .p-actions {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.35s;
+  }
+  .p-card:hover .p-actions {
+    opacity: 1;
+    transform: none;
+  }
+  @media (hover: none) {
+    .p-card .p-actions {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .cat-card img {
+    transition: transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .cat-card:hover img {
+    transform: scale(1.08);
+  }
+  /* ============ BUTTONS ============ */
+  .btn-gold {
+    background: linear-gradient(135deg, #d4af5c, #b8903a);
+    transition: all 0.3s;
+  }
+  .btn-gold:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -8px rgba(160, 127, 46, 0.5);
+  }
+  .btn-dark {
+    transition: all 0.3s;
+  }
+  .btn-dark:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -8px rgba(30, 21, 13, 0.45);
+  }
+  .btn-press:active {
+    transform: scale(0.96);
+  }
+  /* ============ ACCORDION ============ */
+  .faq-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .faq-item.open .faq-body {
+    grid-template-rows: 1fr;
+  }
+  .faq-item .faq-chev {
+    transition: transform 0.4s;
+  }
+  .faq-item.open .faq-chev {
+    transform: rotate(180deg);
+  }
+  /* ============ PILLS & CHIPS ============ */
+  .badge-pop {
+    animation: badgein 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes badgein {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .weight-pill.active {
+    background: #33220f;
+    color: #f3ecdd;
+    border-color: #33220f;
+  }
+  .filter-chip.active {
+    background: #4a3222;
+    color: #f3ecdd;
+    border-color: #4a3222;
+  }
+  .box-size-card.active {
+    border-color: #c9a24b;
+    background: rgba(201, 162, 75, 0.09);
+    box-shadow: 0 8px 24px -10px rgba(160, 127, 46, 0.35);
+  }
+  .box-item.active {
+    border-color: #c9a24b;
+    background: rgba(201, 162, 75, 0.1);
+  }
+  .box-item.active .box-check {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .box-check {
+    opacity: 0;
+    transform: scale(0.4);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  /* ============ NUTRITION EXPERIENCE ("WHY THIS PRODUCT?") ============ */
+  .nx-swap {
+    transition:
+      opacity 0.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .nx-swap.nx-out {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .nx-chip {
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .nx-chip.active {
+    background: #33220f;
+    color: #f3ecdd;
+    border-color: #33220f;
+    box-shadow: 0 8px 20px -8px rgba(51, 34, 15, 0.4);
+  }
+  .nx-card {
+    transition:
+      transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+      box-shadow 0.35s,
+      border-color 0.35s;
+  }
+  .nx-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 18px 36px -14px rgba(51, 34, 15, 0.28),
+      0 0 0 1px rgba(201, 162, 75, 0.35);
+    border-color: rgba(201, 162, 75, 0.55);
+  }
+  .nx-card:hover .nx-ic {
+    transform: scale(1.12) rotate(-6deg);
+  }
+  .nx-ic {
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .nx-pop {
+    opacity: 0;
+    animation: nxpop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .nx-d1 {
+    animation-delay: 0.08s;
+  }
+  .nx-d2 {
+    animation-delay: 0.16s;
+  }
+  .nx-d3 {
+    animation-delay: 0.24s;
+  }
+  .nx-d4 {
+    animation-delay: 0.32s;
+  }
+  @keyframes nxpop {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .nx-lines path {
+    stroke-dasharray: 260;
+    stroke-dashoffset: 260;
+    animation: nxdraw 1.2s ease 0.25s forwards;
+  }
+  @keyframes nxdraw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .nx-img-wrap {
+    transition: box-shadow 0.4s;
+  }
+  .nx-img-wrap img {
+    transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .nx-img-wrap:hover img {
+    transform: scale(1.07);
+  }
+  .nx-img-wrap:hover {
+    box-shadow:
+      0 0 0 5px rgba(201, 162, 75, 0.25),
+      0 24px 48px -16px rgba(51, 34, 15, 0.35);
+  }
+  /* ============ REVEAL ON SCROLL ============ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-d1 {
+    transition-delay: 0.1s;
+  }
+  .reveal-d2 {
+    transition-delay: 0.2s;
+  }
+  .reveal-d3 {
+    transition-delay: 0.3s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* ============ DRAWERS & MODALS ============ */
+  .drawer {
+    transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .drawer-right {
+    transform: translateX(100%);
+  }
+  .drawer-right.open {
+    transform: translateX(0);
+  }
+  .drawer-left {
+    transform: translateX(-100%);
+  }
+  .drawer-left.open {
+    transform: translateX(0);
+  }
+  .overlay-fade {
+    transition: opacity 0.4s;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .overlay-fade.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-pop {
+    transition:
+      opacity 0.35s,
+      transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    pointer-events: none;
+  }
+  .modal-pop.open {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .toast-in {
+    animation: toastin 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  @keyframes toastin {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

@@ -1,4 +1,6 @@
 export { ProductCard } from "./components/ProductCard";
+export { QuickViewModal } from "./components/storefront/QuickViewModal";
+export { SearchOverlay } from "./components/storefront/SearchOverlay";
 export {
   PRODUCT_STATUS,
   PRODUCT_STATUS_LABELS,
@@ -18,3 +20,9 @@ export type {
   ProductPayload,
   ProductVariantDto,
 } from "./types/products-api.types";
+export {
+  getDefaultVariant,
+  getDisplayPrice,
+  getPopularityScore,
+  matchesSearch,
+} from "./utils/product-display";

@@ -22,9 +22,39 @@ export const CURRENCY = {
 
 /** Anchor ids for the storefront home page's sections — used by both the home page and the nav's in-page links. */
 export const HOME_SECTION_IDS = {
-  bestSellers: "best-sellers",
-  giftBoxes: "gift-boxes",
-  buildYourBox: "build-your-box",
+  home: "home",
+  categories: "categories",
+  bestSellers: "bestsellers",
+  deals: "deals",
+  shop: "shop",
+  royal: "royal",
+  buildYourBox: "buildbox",
+  giftBoxes: "gifts",
+  health: "health",
+  nutrition: "nutrition",
+  reviews: "reviews",
   about: "about",
+  delivery: "delivery",
+  faq: "faq",
   contact: "contact",
 } as const;
+
+/** Storefront delivery pricing — display copy only; checkout always re-prices on the server. */
+export const DELIVERY = {
+  FREE_THRESHOLD: 3000,
+  FLAT_FEE: 250,
+} as const;
+
+/** Public business contact details shown on the storefront. */
+export const STORE_CONTACT = {
+  WHATSAPP_NUMBER: "923475615272",
+  WHATSAPP_DISPLAY: "+923475615272",
+  EMAIL: "hello@royalnuts.pk",
+  FACEBOOK_URL: "https://facebook.com/",
+  INSTAGRAM_URL: "https://instagram.com/",
+  TIKTOK_URL: "https://tiktok.com/",
+} as const;
+
+/** Builds a wa.me deep link, optionally pre-filled with a message. */
+export const buildWhatsAppUrl = (message?: string): string =>
+  `https://wa.me/${STORE_CONTACT.WHATSAPP_NUMBER}${message ? `?text=${encodeURIComponent(message)}` : ""}`;

@@ -1,103 +1,77 @@
-import { TruckOutlined } from "@ant-design/icons";
-import { Select } from "antd";
 import { useState } from "react";
-import { brandColors, brandFontFamily } from "@/theme";
+import { HOME_SECTION_IDS } from "@/constants";
 
-const CITY_ESTIMATES: Record<string, string> = {
+const DELIVERY_ESTIMATES: Record<string, string> = {
   Islamabad: "1–2 working days",
   Rawalpindi: "1–2 working days",
   Lahore: "2–4 working days",
   Karachi: "2–4 working days",
   Peshawar: "2–4 working days",
-  Quetta: "3–6 working days",
+  Quetta: "2–4 working days",
   Faisalabad: "2–4 working days",
   Multan: "2–4 working days",
   Other: "3–6 working days",
 };
 
-const TIMELINE_TABLE = [
-  { zone: "Islamabad / Rawalpindi", window: "1–2 working days" },
-  { zone: "Major Cities", window: "2–4 working days" },
-  { zone: "Other Areas", window: "3–6 working days" },
+const ZONES = [
+  { name: "Islamabad / Rawalpindi", days: "1–2 working days" },
+  { name: "Major Cities", days: "2–4 working days" },
+  { name: "Other Areas", days: "3–6 working days" },
 ];
 
-/** City-based delivery estimate card plus a general timeline table. */
 export const DeliverySection = () => {
   const [city, setCity] = useState("Rawalpindi");
 
   return (
-    <section className="py-16 sm:py-20" style={{ background: brandColors.cream }}>
+    <section id={HOME_SECTION_IDS.delivery} className="paper-texture py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <div
-          className="relative overflow-hidden rounded-3xl border p-6 sm:p-10"
-          style={{
-            background: "rgba(255,255,255,.8)",
-            borderColor: brandColors.sand,
-            boxShadow: "0 10px 40px -12px rgba(51,34,15,.18)",
-          }}
-        >
-          <div className="text-center">
-            <h2
-              className="text-2xl font-bold sm:text-4xl"
-              style={{ fontFamily: brandFontFamily.display, color: brandColors.walnutDark }}
-            >
-              Nationwide Delivery Available 🇵🇰
+        <div className="reveal relative overflow-hidden rounded-3xl border border-sand bg-white/80 p-6 shadow-soft sm:p-10">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
+          <div className="mb-8 text-center">
+            <h2 className="font-display text-2xl font-bold text-walnutdk sm:text-4xl">
+              Nationwide Delivery Available <span aria-hidden="true">🇵🇰</span>
             </h2>
-            <p className="mt-3 font-light" style={{ color: brandColors.cocoa }}>
+            <p className="mt-3 font-light text-cocoa">
               Select your city to see the estimated delivery window.
             </p>
           </div>
-
-          <div className="mx-auto mt-8 max-w-md">
+          <div className="mx-auto max-w-md">
             <label
               htmlFor="delivery-city"
-              className="mb-2 block text-[13px] font-semibold"
-              style={{ color: brandColors.walnut }}
+              className="mb-2 block text-[13px] font-semibold text-walnut"
             >
               Your City
             </label>
-            <Select
+            <select
               id="delivery-city"
-              size="large"
-              className="w-full"
               value={city}
-              onChange={setCity}
-              options={Object.keys(CITY_ESTIMATES).map((zone) => ({ value: zone, label: zone }))}
-            />
-            <div
-              className="mt-4 rounded-xl border px-5 py-4 text-center"
-              style={{ background: "rgba(201,162,75,.1)", borderColor: "rgba(201,162,75,.3)" }}
+              onChange={(event) => setCity(event.target.value)}
+              className="w-full cursor-pointer rounded-xl border border-sand bg-cream px-4 py-3 text-walnut"
             >
-              <p className="font-semibold" style={{ color: brandColors.walnutDark }}>
-                <TruckOutlined className="mr-2" style={{ color: brandColors.goldDark }} />
-                Estimated delivery: {CITY_ESTIMATES[city]}
+              {Object.keys(DELIVERY_ESTIMATES).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <div className="mt-4 rounded-xl border border-gold/30 bg-gold/10 px-5 py-4 text-center">
+              <p className="font-semibold text-walnutdk">
+                <i className="fa-solid fa-truck-fast mr-2 text-golddk" />
+                {city}: estimated delivery in {DELIVERY_ESTIMATES[city]}
               </p>
             </div>
           </div>
-
           <div className="mt-8 grid gap-4 text-center text-[13.5px] sm:grid-cols-3">
-            {TIMELINE_TABLE.map((row) => (
-              <div
-                key={row.zone}
-                className="rounded-xl border px-4 py-4"
-                style={{ background: brandColors.cream, borderColor: brandColors.sand }}
-              >
-                <p className="font-semibold" style={{ color: brandColors.walnutDark }}>
-                  {row.zone}
-                </p>
-                <p className="mt-1" style={{ color: brandColors.cocoa, opacity: 0.8 }}>
-                  {row.window}
-                </p>
+            {ZONES.map((zone) => (
+              <div key={zone.name} className="rounded-xl border border-sand bg-cream px-4 py-4">
+                <p className="font-semibold text-walnutdk">{zone.name}</p>
+                <p className="mt-1 text-cocoa/80">{zone.days}</p>
               </div>
             ))}
           </div>
-
-          <p
-            className="mt-6 text-center text-[12px]"
-            style={{ color: brandColors.cocoa, opacity: 0.7 }}
-          >
-            Delivery times are estimates and may vary during peak seasons and public holidays. Free
-            delivery applies on orders above Rs. 3,000.
+          <p className="mt-6 text-center text-[12px] text-cocoa/60">
+            Delivery times are estimates and may vary during peak seasons, sales and public
+            holidays. Free delivery applies on orders above Rs. 3,000.
           </p>
         </div>
       </div>

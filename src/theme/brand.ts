@@ -16,7 +16,14 @@ export const brandColors = {
   gold: "#C9A24B",
   goldDark: "#A07F2E",
   leaf: "#6D7D4F",
+  leafDark: "#4D5C36",
+  leafLight: "#7A9B58",
+  almondSkin: "#8A6A44",
+  hazelnut: "#B98A4F",
+  hazelnutDark: "#8A5F31",
   white: "#FFFFFF",
+  /** WhatsApp's brand green, for the order-via-WhatsApp buttons. */
+  whatsapp: "#25D366",
 } as const;
 
 export type BrandColorToken = keyof typeof brandColors;

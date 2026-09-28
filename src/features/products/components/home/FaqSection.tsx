@@ -1,7 +1,6 @@
-import { DownOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { SectionHeading } from "@/components";
-import { brandColors, brandShadows } from "@/theme";
+import { HOME_SECTION_IDS } from "@/constants";
 
 const FAQS: Array<{ question: string; answer: string }> = [
   {
@@ -12,7 +11,7 @@ const FAQS: Array<{ question: string; answer: string }> = [
   {
     question: "What pack sizes are available?",
     answer:
-      "Most products are available in 100g, 250g, 500g and 1kg packs. Some premium items (like pine nut kernels) come in smaller packs, while gift boxes come in Standard, Deluxe or Royal presentations.",
+      "Most products are available in 100g, 250g, 500g and 1kg packs. Some premium items (like chilgoza kernels) come in smaller packs, while gift boxes come in Standard, Deluxe or Royal presentations.",
   },
   {
     question: "Do you deliver nationwide?",
@@ -26,13 +25,12 @@ const FAQS: Array<{ question: string; answer: string }> = [
   },
   {
     question: "Do you offer Cash on Delivery?",
-    answer:
-      "Yes, Cash on Delivery is available nationwide. You can also choose bank transfer or a mobile wallet at checkout.",
+    answer: "Yes, Cash on Delivery is available nationwide — you pay when your order arrives.",
   },
   {
     question: "Can I create a custom gift box?",
     answer:
-      "Absolutely — use our Build Your Own Box feature. Pick a box size (Mini to Royal), choose your favourite products, see the live total, and add it straight to your cart.",
+      "Absolutely — use our Build Your Royal Box feature. Pick a box size (Mini to Royal), choose your favorite products, see the live total, and add it straight to your cart.",
   },
   {
     question: "How should dry fruits be stored?",
@@ -42,23 +40,21 @@ const FAQS: Array<{ question: string; answer: string }> = [
   {
     question: "What if an item arrives damaged?",
     answer:
-      "Contact us within 48 hours of delivery with a photo and we'll arrange a replacement or refund.",
+      "Contact us on WhatsApp within 48 hours of delivery with a photo and we'll arrange a replacement or refund.",
   },
   {
     question: "Are prices based on product quality and variety?",
     answer:
-      "Yes — pricing reflects grade, variety, origin and season. Premium varieties and specialty items cost more than everyday picks, and prices shown here are sample retail-style prices.",
+      "Yes — pricing reflects grade, variety, origin and season. Mamra almonds cost more than regular badam; chilgoza is a premium product; W240 cashews cost more than W320. Prices shown here are sample retail-style prices.",
   },
   {
     question: "How can I order through WhatsApp?",
     answer:
-      "Tap the WhatsApp button and send us your order — we'll confirm products, weights, quantities and total, then arrange Cash on Delivery.",
+      "Add products to your cart and tap 'Order via WhatsApp' — a complete order message with products, weights, quantities and total is generated automatically and opens in WhatsApp.",
   },
 ];
 
-const EASE = "cubic-bezier(.22,.61,.36,1)";
-
-/** Accessible accordion — each FAQ toggles independently, all start closed. */
+/** Accordion — each question opens independently, all start closed. */
 export const FaqSection = () => {
   const [openItems, setOpenItems] = useState<ReadonlySet<number>>(() => new Set());
 
@@ -71,23 +67,17 @@ export const FaqSection = () => {
     });
 
   return (
-    <section className="py-16 sm:py-24" style={{ background: brandColors.ivory }}>
+    <section id={HOME_SECTION_IDS.faq} className="bg-ivory py-16 sm:py-24">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
-        <SectionHeading kicker="Need Help?" title="Frequently Asked Questions" />
-
-        <div className="mt-10 space-y-3">
+        <SectionHeading kicker="Need Help?" title="Frequently Asked Questions" className="mb-10" />
+        <div className="space-y-3">
           {FAQS.map((faq, index) => {
             const open = openItems.has(index);
             const answerId = `faq-answer-${index}`;
             return (
               <div
                 key={faq.question}
-                className="overflow-hidden rounded-2xl border"
-                style={{
-                  borderColor: brandColors.sand,
-                  background: "white",
-                  boxShadow: brandShadows.card,
-                }}
+                className={`faq-item reveal overflow-hidden rounded-2xl border border-sand bg-white shadow-card ${open ? "open" : ""}`}
               >
                 <button
                   type="button"
@@ -96,34 +86,12 @@ export const FaqSection = () => {
                   aria-expanded={open}
                   aria-controls={answerId}
                 >
-                  <span
-                    className="text-[15px] font-semibold"
-                    style={{ color: brandColors.walnutDark }}
-                  >
-                    {faq.question}
-                  </span>
-                  <DownOutlined
-                    className="shrink-0 text-[13px]"
-                    style={{
-                      color: brandColors.goldDark,
-                      transition: "transform .4s",
-                      transform: open ? "rotate(180deg)" : "none",
-                    }}
-                  />
+                  <span className="text-[15px] font-semibold text-walnutdk">{faq.question}</span>
+                  <i className="faq-chev fa-solid fa-chevron-down shrink-0 text-[13px] text-golddk" />
                 </button>
-                <div
-                  id={answerId}
-                  className="grid"
-                  style={{
-                    gridTemplateRows: open ? "1fr" : "0fr",
-                    transition: `grid-template-rows .45s ${EASE}`,
-                  }}
-                >
+                <div id={answerId} className="faq-body">
                   <div className="overflow-hidden">
-                    <p
-                      className="px-5 pb-5 text-[14px] font-light leading-relaxed sm:px-6"
-                      style={{ color: brandColors.cocoa }}
-                    >
+                    <p className="px-5 pb-5 text-[14px] font-light leading-relaxed text-cocoa sm:px-6">
                       {faq.answer}
                     </p>
                   </div>

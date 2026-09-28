@@ -1,5 +1,10 @@
 import type { ProductDto, ProductListParams, ProductPayload } from "@/features/products";
-import { PRODUCTS_ENDPOINTS } from "@/features/products";
+import {
+  getDisplayPrice,
+  getPopularityScore,
+  matchesSearch,
+  PRODUCTS_ENDPOINTS,
+} from "@/features/products";
 import type { PaginatedResult } from "@/types";
 import { MOCK_CATEGORIES, MOCK_PRODUCTS, makePaginatedResult } from "../data";
 import { badRequest, defineHandlers, notFound } from "../mock-router";
@@ -34,9 +39,9 @@ export const productsHandlers = defineHandlers([
       const params = query as ProductListParams & Record<string, string>;
       let filtered = products;
 
-      if (params.search) {
-        const term = params.search.toLowerCase();
-        filtered = filtered.filter((p) => p.name.toLowerCase().includes(term));
+      if (params.search?.trim()) {
+        const search = params.search;
+        filtered = filtered.filter((p) => matchesSearch(p, search));
       }
       if (params.categoryId) {
         filtered = filtered.filter((p) => p.categoryId === params.categoryId);
@@ -58,27 +63,58 @@ export const productsHandlers = defineHandlers([
       if (params.weight) {
         filtered = filtered.filter((p) => p.variants.some((v) => v.label === params.weight));
       }
+      const displayMin = params.displayPriceMin !== undefined ? Number(params.displayPriceMin) : 0;
+      const displayMax =
+        params.displayPriceMax !== undefined
+          ? Number(params.displayPriceMax)
+          : Number.POSITIVE_INFINITY;
+      if (params.displayPriceMin !== undefined || params.displayPriceMax !== undefined) {
+        filtered = filtered.filter((p) => {
+          const price = getDisplayPrice(p);
+          return price >= displayMin && price <= displayMax;
+        });
+      }
+      if (String(params.bestSeller) === "true") {
+        filtered = filtered.filter((p) => p.isBestSeller);
+      }
+      if (String(params.royal) === "true") {
+        filtered = filtered.filter((p) => p.isRoyal);
+      }
       if (params.minRating !== undefined) {
         const minRating = Number(params.minRating);
         filtered = filtered.filter((p) => (p.rating ?? 0) >= minRating);
       }
 
       const sorted = [...filtered];
+      const newest = (a: ProductDto, b: ProductDto) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       switch (params.sort) {
         case "price-asc":
-          sorted.sort((a, b) => (a.variants[0]?.price ?? 0) - (b.variants[0]?.price ?? 0));
+          sorted.sort((a, b) => getDisplayPrice(a) - getDisplayPrice(b));
           break;
         case "price-desc":
-          sorted.sort((a, b) => (b.variants[0]?.price ?? 0) - (a.variants[0]?.price ?? 0));
+          sorted.sort((a, b) => getDisplayPrice(b) - getDisplayPrice(a));
           break;
         case "new":
-          sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          sorted.sort(
+            (a, b) => Number(b.isNew ?? false) - Number(a.isNew ?? false) || newest(a, b),
+          );
           break;
         case "rating":
-          sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+          sorted.sort(
+            (a, b) =>
+              (b.rating ?? 0) - (a.rating ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0),
+          );
           break;
         case "bestselling":
-          sorted.sort((a, b) => Number(b.isBestSeller ?? false) - Number(a.isBestSeller ?? false));
+          sorted.sort(
+            (a, b) =>
+              Number(b.isBestSeller ?? false) - Number(a.isBestSeller ?? false) ||
+              (b.reviewCount ?? 0) - (a.reviewCount ?? 0),
+          );
+          break;
+        case "popular":
+          sorted.sort((a, b) => getPopularityScore(b) - getPopularityScore(a));
           break;
         default:
           break;

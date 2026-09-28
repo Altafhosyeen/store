@@ -1,59 +1,41 @@
-import {
-  CheckCircleOutlined,
-  GiftOutlined,
-  SafetyCertificateOutlined,
-  TruckOutlined,
-} from "@ant-design/icons";
-import { brandColors, brandFontFamily } from "@/theme";
-
-const TRUST_POINTS = [
+const PROMISES = [
   {
-    icon: <SafetyCertificateOutlined />,
+    icon: "medal",
     title: "Premium Quality",
-    description: "Carefully selected products, graded and inspected batch by batch.",
+    body: "Carefully selected products, graded and inspected batch by batch.",
   },
   {
-    icon: <GiftOutlined />,
+    icon: "box-open",
     title: "Freshly Packed",
-    description: "Packed for freshness in sealed, food-safe packaging.",
+    body: "Packed for freshness in sealed, food-safe packaging.",
   },
   {
-    icon: <TruckOutlined />,
+    icon: "truck-fast",
     title: "Nationwide Delivery",
-    description: "Delivering across Pakistan, door to door.",
+    body: "Delivering across Pakistan, from Karachi to Gilgit.",
   },
   {
-    icon: <CheckCircleOutlined />,
+    icon: "shield-halved",
     title: "Secure Shopping",
-    description: "Safe and simple checkout with Cash on Delivery available.",
+    body: "Safe and simple checkout with Cash on Delivery available.",
   },
 ];
 
-/** The trust strip: four short reassurance cards on a dark band. */
+const REVEAL_DELAYS = ["", "reveal-d1", "reveal-d2", "reveal-d3"];
+
 export const TrustSection = () => (
-  <section className="py-14" style={{ background: brandColors.walnutDark }}>
+  <section className="relative overflow-hidden bg-walnutdk py-14">
     <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 sm:gap-6 sm:px-6 lg:grid-cols-4">
-      {TRUST_POINTS.map((point) => (
+      {PROMISES.map((promise, index) => (
         <div
-          key={point.title}
-          className="rounded-2xl border p-5 text-center transition-colors hover:opacity-90 sm:p-6"
-          style={{ borderColor: "rgba(201,162,75,.15)", background: "rgba(30,21,13,.5)" }}
+          key={promise.title}
+          className={`reveal rounded-2xl border border-gold/15 bg-charcoal/50 p-5 text-center transition-colors hover:border-gold/40 sm:p-6 ${REVEAL_DELAYS[index]}`}
         >
-          <span
-            className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full text-lg"
-            style={{ background: "rgba(201,162,75,.15)", color: brandColors.gold }}
-          >
-            {point.icon}
+          <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gold/15 text-lg text-gold">
+            <i className={`fa-solid fa-${promise.icon}`} />
           </span>
-          <p
-            className="font-bold"
-            style={{ fontFamily: brandFontFamily.display, color: brandColors.cream }}
-          >
-            {point.title}
-          </p>
-          <p className="mt-1.5 text-[12.5px] font-light" style={{ color: "rgba(243,236,221,.6)" }}>
-            {point.description}
-          </p>
+          <p className="font-display font-bold text-cream">{promise.title}</p>
+          <p className="mt-1.5 text-[12.5px] font-light text-ivory/60">{promise.body}</p>
         </div>
       ))}
     </div>

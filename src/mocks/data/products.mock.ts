@@ -1,14 +1,15 @@
+import { STORE_IMAGES } from "@/assets/images";
 import type { ProductDto, ProductVariantDto } from "@/features/products";
 import { PRODUCT_STATUS } from "@/features/products";
 import { MOCK_CATEGORIES } from "./categories.mock";
-import { CATALOG } from "./products-catalog.mock";
+import { CATALOG, type CatalogEntry } from "./products-catalog.mock";
 
 const makeVariant = (overrides: Partial<ProductVariantDto> = {}): ProductVariantDto => ({
   id: "var-1",
   label: "250g",
   size: 250,
   unit: "g",
-  price: 700,
+  price: 1050,
   stockQuantity: 40,
   ...overrides,
 });
@@ -18,25 +19,26 @@ export const makeProduct = (overrides: Partial<ProductDto> = {}): ProductDto => 
   const now = new Date().toISOString();
   return {
     id: "prod-1",
-    name: "Roasted Cashews",
-    slug: "roasted-cashews",
-    description: "Premium roasted cashews, lightly salted.",
+    name: "Premium American Almonds",
+    slug: "premium-american-almonds",
+    description:
+      "Large, uniform California almonds with a clean crunch and naturally sweet finish.",
     categoryId: category.id,
     categoryName: category.name,
     status: PRODUCT_STATUS.PUBLISHED,
-    images: ["https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600"],
+    images: [STORE_IMAGES.almonds],
     variants: [
-      makeVariant({ id: "var-1", label: "250g", size: 250, price: 700, stockQuantity: 40 }),
+      makeVariant({ id: "var-1", label: "250g", size: 250, price: 1050, stockQuantity: 40 }),
       makeVariant({
         id: "var-2",
         label: "500g",
         size: 500,
-        price: 1250,
-        compareAtPrice: 1500,
+        price: 2010,
+        compareAtPrice: 2230,
         stockQuantity: 25,
       }),
     ],
-    tags: ["roasted", "salted"],
+    tags: ["almonds"],
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -49,29 +51,26 @@ const findCategory = (slug: string) => {
   return category;
 };
 
-/** Builds the two-variant (250g/500g) price ladder most SKUs in this catalog use. */
-const twoSizeVariants = (
-  idPrefix: string,
-  smallPrice: number,
-  largePrice: number,
-  options: { smallStock?: number; largeStock?: number; compareAtLarge?: number } = {},
-): ProductVariantDto[] => [
-  makeVariant({
-    id: `${idPrefix}-250g`,
-    label: "250g",
-    size: 250,
-    price: smallPrice,
-    stockQuantity: options.smallStock ?? 40,
-  }),
-  makeVariant({
-    id: `${idPrefix}-500g`,
-    label: "500g",
-    size: 500,
-    price: largePrice,
-    compareAtPrice: options.compareAtLarge,
-    stockQuantity: options.largeStock ?? 25,
-  }),
-];
+/** The reference storefront rounds every price to the nearest Rs. 10. */
+const roundToTen = (value: number): number => Math.round(value / 10) * 10;
+
+/** "250g" → { size: 250, unit: "g" }; "1kg" → { size: 1, unit: "kg" }; "Standard" → a 1-piece box. */
+const parsePack = (label: string): { size: number; unit: string } => {
+  const match = /^(\d+)(g|kg)$/.exec(label);
+  return match ? { size: Number(match[1]), unit: match[2] } : { size: 1, unit: "box" };
+};
+
+const toVariants = (id: string, entry: CatalogEntry): ProductVariantDto[] =>
+  Object.entries(entry.prices).map(([label, price]) => ({
+    id: `${id}-${label.toLowerCase()}`,
+    label,
+    ...parsePack(label),
+    price,
+    compareAtPrice: entry.salePercent
+      ? roundToTen(price / (1 - entry.salePercent / 100))
+      : undefined,
+    stockQuantity: entry.inStock === false ? 0 : 40,
+  }));
 
 const slugify = (value: string): string =>
   value
@@ -79,22 +78,10 @@ const slugify = (value: string): string =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-/**
- * Deterministic 0-99 seed from a product id, so merchandising signals below
- * (rating, review count, badges) are stable across renders and test runs
- * without hardcoding a value per catalog entry.
- */
-const seedOf = (id: string): number => {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  return hash % 100;
-};
-
 export const MOCK_PRODUCTS: ProductDto[] = CATALOG.map((entry, index) => {
   const category = findCategory(entry.categorySlug);
   const id = `prod-${index + 1}`;
   const createdAt = new Date(Date.now() - (CATALOG.length - index) * 86_400_000).toISOString();
-  const seed = seedOf(id);
 
   return makeProduct({
     id,
@@ -103,23 +90,69 @@ export const MOCK_PRODUCTS: ProductDto[] = CATALOG.map((entry, index) => {
     description: entry.description,
     categoryId: category.id,
     categoryName: category.name,
-    status: entry.status ?? PRODUCT_STATUS.PUBLISHED,
-    images: [entry.image],
-    variants: twoSizeVariants(id, entry.smallPrice, entry.largePrice, {
-      compareAtLarge: entry.compareAtLarge,
-      smallStock: entry.stockOverride?.small,
-      largeStock: entry.stockOverride?.large ?? (index % 11 === 0 ? 0 : undefined),
-    }),
-    tags: entry.tags,
+    status: PRODUCT_STATUS.PUBLISHED,
+    images: [STORE_IMAGES[entry.image]],
+    variants: toVariants(id, entry),
+    tags: entry.keywords.split(" ").filter(Boolean),
     createdAt,
     updatedAt: createdAt,
-    rating: Math.round((4.3 + (seed % 7) * 0.1) * 10) / 10,
-    reviewCount: 20 + seed,
-    isBestSeller: seed % 5 === 0,
-    isFeatured: index < 8,
-    isNew: seed % 9 === 0,
+    rating: entry.rating,
+    reviewCount: entry.reviewCount,
+    isBestSeller: entry.isBestSeller ?? false,
+    isFeatured: entry.isFeatured ?? false,
+    isNew: entry.isNew ?? false,
+    isRoyal: entry.isRoyal ?? false,
+    urduName: entry.urduName,
+    subtitle: entry.subtitle,
+    badge: entry.badge,
+    salePercent: entry.salePercent,
+    origin: entry.origin,
+    texture: entry.texture,
+    taste: entry.taste,
+    bestFor: entry.bestFor,
+    keywords: entry.keywords,
   });
 });
+
+/**
+ * Admin-console-only records: the reference catalogue is all published, but
+ * the console needs drafts and an archived product to exercise its workflows.
+ * The storefront only ever lists published products, so these never show there.
+ */
+const ADMIN_ONLY_PRODUCTS: ProductDto[] = [
+  makeProduct({
+    id: `prod-${CATALOG.length + 1}`,
+    name: "Unroasted Pistachios",
+    slug: "unroasted-pistachios",
+    description: "Raw in-shell pistachios awaiting the next roasting batch.",
+    categoryId: findCategory("nuts").id,
+    categoryName: findCategory("nuts").name,
+    status: PRODUCT_STATUS.DRAFT,
+    images: [STORE_IMAGES.pistachios],
+  }),
+  makeProduct({
+    id: `prod-${CATALOG.length + 2}`,
+    name: "Honey Glazed Walnuts",
+    slug: "honey-glazed-walnuts",
+    description: "Walnut halves in a thin honey glaze — recipe still being finalised.",
+    categoryId: findCategory("snacks").id,
+    categoryName: findCategory("snacks").name,
+    status: PRODUCT_STATUS.DRAFT,
+    images: [STORE_IMAGES.walnuts],
+  }),
+  makeProduct({
+    id: `prod-${CATALOG.length + 3}`,
+    name: "Summer Fruit Hamper",
+    slug: "summer-fruit-hamper",
+    description: "Last season's limited-edition hamper, no longer sold.",
+    categoryId: findCategory("gift-boxes").id,
+    categoryName: findCategory("gift-boxes").name,
+    status: PRODUCT_STATUS.ARCHIVED,
+    images: [STORE_IMAGES.giftbox],
+  }),
+];
+
+MOCK_PRODUCTS.push(...ADMIN_ONLY_PRODUCTS);
 
 /** Backwards-compatible generator, now backed by the real named catalog above. */
 export const makeProductList = (count: number): ProductDto[] =>

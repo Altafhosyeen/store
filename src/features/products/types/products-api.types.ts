@@ -40,15 +40,25 @@ export interface ProductDto {
   isBestSeller?: boolean;
   isFeatured?: boolean;
   isNew?: boolean;
+  /** Reserved-for-the-finest line shown in the Royal Collection section. */
+  isRoyal?: boolean;
+  /** Urdu product name shown under the English one. */
+  urduName?: string;
+  /** Small caps label above the name, e.g. "Almonds • Badam". */
+  subtitle?: string;
+  /** Merchandising badge such as "Royal Pick" or "Fresh Batch". */
+  badge?: string;
+  /** Whole-number sale discount; compare-at prices on the variants carry the old price. */
+  salePercent?: number;
+  origin?: string;
+  texture?: string;
+  taste?: string;
+  bestFor?: string;
+  /** Extra search terms (Urdu transliterations, grades) matched by storefront search. */
+  keywords?: string;
 }
 
-export type ProductSort =
-  | "popular"
-  | "bestselling"
-  | "price-asc"
-  | "price-desc"
-  | "new"
-  | "rating";
+export type ProductSort = "popular" | "bestselling" | "price-asc" | "price-desc" | "new" | "rating";
 
 export interface ProductListParams extends PaginationParams {
   categoryId?: string;
@@ -60,6 +70,12 @@ export interface ProductListParams extends PaginationParams {
   weight?: string;
   minRating?: number;
   sort?: ProductSort;
+  /** Only best sellers / only the Royal Collection — storefront showcase rows. */
+  bestSeller?: boolean;
+  royal?: boolean;
+  /** Price band applied to the default (250g, else smallest) pack, as the storefront displays it. */
+  displayPriceMin?: number;
+  displayPriceMax?: number;
 }
 
 export interface ProductVariantPayload {

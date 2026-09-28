@@ -2,6 +2,7 @@ export const STORAGE_KEYS = {
   AUTH_SESSION: "rn.auth.session",
   UI_SIDEBAR_COLLAPSED: "rn.ui.sidebar-collapsed",
   CART: "rn.cart",
+  WISHLIST: "rn.wishlist",
   LOOKUP_CACHE: "rn.lookup.cache",
 } as const;
 

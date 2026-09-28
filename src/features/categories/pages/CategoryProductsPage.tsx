@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { EmptyState, QueryStateBoundary, SectionHeading } from "@/components";
-import { PRODUCT_STATUS, ProductCard, useAddToCart, useGetProducts } from "@/features/products";
+import { PRODUCT_STATUS, ProductCard, useGetProducts } from "@/features/products";
 import { brandColors } from "@/theme";
 import { useGetCategoriesAdmin } from "../hooks/use-categories-admin";
 
@@ -19,7 +19,6 @@ export const CategoryProductsPage = () => {
     categoryId: category?.id,
     status: PRODUCT_STATUS.PUBLISHED,
   });
-  const addToCart = useAddToCart();
 
   const products = data?.items ?? [];
   const isLoadingAny = categoriesLoading || isLoading;
@@ -47,12 +46,8 @@ export const CategoryProductsPage = () => {
             onRetry={refetch}
           >
             <div className="grid grid-cols-2 gap-3.5 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={() => addToCart(product)}
-                />
+              {products.map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>
           </QueryStateBoundary>
